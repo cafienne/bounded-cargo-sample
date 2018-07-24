@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Cafienne B.V. <https://www.cafienne.io/bounded>
+ * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample
@@ -109,7 +109,7 @@ object SpecConfig {
       |       publish-confirmations = on
       |       publish-plugin-commands = on
       |       journal {
-      |          plugin = "akka.persistence.journal.inmem"
+      |          plugin = "inmemory-journal"
       |       }
       |      }
       |      test {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Cafienne B.V. <https://www.cafienne.io/bounded>
+ * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.httpapi
@@ -11,6 +11,7 @@ import akka.event.Logging
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import io.cafienne.bounded.{BuildInfo, RuntimeInfo}
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
@@ -27,18 +28,21 @@ class CargoRouteSpec extends FlatSpec with MustMatchers with ScalatestRouteTest 
   import spray.json._
 
   val logger = Logging(system, getClass)
+  implicit val buildInfo =
+    BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
+  implicit val runtimeInfo = RuntimeInfo(System.currentTimeMillis().toString)
 
   val cargoId1 = CargoId(UUID.fromString("8CD15DA4-006B-478C-8640-2FA52AA7657E"))
   val cargoViewItem1 =
     CargoViewItem(cargoId1, "Amsterdam", "New York", ZonedDateTime.parse("2018-01-01T12:25:38+01:00"))
-  val metadata = MetaData(ZonedDateTime.now, None)
+  val metadata = CommandMetaData(ZonedDateTime.now, None)
 
   val cargoQueries = new CargoQueries {
-    override def getCargo(cargoId: CargoDomainProtocol.CargoId): Future[Option[CargoViewItem]] = {
+    override def getCargo(cargoId: CargoDomainProtocol.CargoId): Option[CargoViewItem] = {
       if (cargoId.id.compareTo(cargoId1.id) == 0) {
-        Future.successful(Some(cargoViewItem1))
+        Some(cargoViewItem1)
       } else {
-        Future.successful(None)
+        None
       }
     }
   }
@@ -54,7 +58,7 @@ class CargoRouteSpec extends FlatSpec with MustMatchers with ScalatestRouteTest 
             Ok(
               List(
                 CargoPlanned(
-                  metadata,
+                  MetaData.fromCommand(metadata),
                   cargoId1,
                   TrackingId(UUID.fromString("83AB1887-CC3D-434C-855C-34674E746BC0")),
                   RouteSpecification(

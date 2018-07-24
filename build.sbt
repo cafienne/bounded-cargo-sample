@@ -1,7 +1,7 @@
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtConfig
 
 lazy val basicSettings = {
-  val currentScalaVersion = "2.12.3"
+  val currentScalaVersion = "2.12.6"
   val scala211Version     = "2.11.11"
 
   Seq(
@@ -38,5 +38,12 @@ lazy val root = (project in file("."))
   .settings(publishArtifact := false,
     name := "Bounded Cargo Sample",
     libraryDependencies ++= Dependencies.baseDeps ++ Dependencies.persistanceLmdbDBDeps ++ Dependencies.persistenceLevelDBDeps
+  )
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "io.cafienne.bounded.cargosample",
+    buildInfoOptions += BuildInfoOption.BuildTime,
+    buildInfoOptions += BuildInfoOption.ToMap
   )
   .enablePlugins(AutomateHeaderPlugin)

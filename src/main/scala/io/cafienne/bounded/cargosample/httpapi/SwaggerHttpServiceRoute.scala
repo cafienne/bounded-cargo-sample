@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2016-2018 Cafienne B.V. <https://www.cafienne.io/bounded>
+ * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.httpapi
 
-import akka.actor._
+import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.github.swagger.akka._
 import com.github.swagger.akka.model.Info

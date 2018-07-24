@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Cafienne B.V. <https://www.cafienne.io/bounded>
+ * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.httpapi
@@ -12,7 +12,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.server.{PathMatchers, Route}
-import io.cafienne.bounded.aggregate.{CommandGateway, Ko, MetaData, Ok}
+import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.{CargoCommandValidatorsImpl, CargoDomainProtocol}
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoId, CargoPlanned, TrackingId}
 import io.cafienne.bounded.cargosample.projections.CargoQueries
@@ -71,24 +71,9 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
     get {
       path("cargo" / PathMatchers.JavaUUID) { id =>
         val cargoId = CargoId(id)
-        onComplete(cargoQueries.getCargo(cargoId)) {
-          case Success(cargoResponse) if cargoResponse.isDefined =>
-            complete(StatusCodes.OK -> cargoResponse)
-          case Success(cargoResponse) =>
-            complete(StatusCodes.NotFound -> ErrorResponse(s"Cargo with id $cargoId is not found"))
-          case Failure(err) => {
-            err match {
-              case ex: Throwable =>
-                complete(
-                  StatusCodes.InternalServerError -> ErrorResponse(
-                    ex.getMessage + Option(ex.getCause)
-                      .map(t => s" due to ${t.getMessage}")
-                      .getOrElse("")
-                  )
-                )
-            }
-          }
-          case _ => complete(StatusCodes.NoContent)
+        cargoQueries.getCargo(cargoId) match {
+          case Some(cargoResponse) => complete(StatusCodes.OK       -> cargoResponse)
+          case None                => complete(StatusCodes.NotFound -> ErrorResponse(s"Cargo with id $cargoId is not found"))
         }
       }
     }
@@ -122,7 +107,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
     post {
       path("cargo") {
         entity(as[PlanCargo]) { planCargo =>
-          val metadata = MetaData(ZonedDateTime.now(), None)
+          val metadata = CommandMetaData(ZonedDateTime.now(), None)
           onComplete(
             commandGateway.sendAndAsk(
               CargoDomainProtocol.PlanCargo(

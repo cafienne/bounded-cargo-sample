@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2018 Cafienne B.V. <https://www.cafienne.io/bounded>
+ * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.projections
@@ -11,6 +11,6 @@ import scala.concurrent.Future
 trait CargoQueries {
   import QueriesJsonProtocol._
 
-  def getCargo(cargoId: CargoId): Future[Option[CargoViewItem]]
+  def getCargo(cargoId: CargoId): Option[CargoViewItem]
 
 }
