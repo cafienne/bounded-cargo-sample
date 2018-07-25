@@ -15,8 +15,8 @@ import akka.http.scaladsl.server.{PathMatchers, Route}
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.{CargoCommandValidatorsImpl, CargoDomainProtocol}
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoId, CargoPlanned, TrackingId}
-import io.cafienne.bounded.cargosample.projections.CargoQueries
-import io.cafienne.bounded.cargosample.projections.QueriesJsonProtocol.CargoViewItem
+import io.cafienne.bounded.cargosample.materializers.CargoQueries
+import io.cafienne.bounded.cargosample.materializers.QueriesJsonProtocol.CargoViewItem
 import io.swagger.annotations._
 
 import scala.util.{Failure, Success}

@@ -17,7 +17,7 @@ import io.cafienne.bounded.aggregate.DefaultCommandGateway
 import io.cafienne.bounded.eventmaterializers._
 import io.cafienne.bounded.cargosample.domain.{CargoCreator, FixedLocationsProvider}
 import io.cafienne.bounded.cargosample.httpapi.HttpApiEndpoint
-import io.cafienne.bounded.cargosample.projections.{CargoLmdbClient, CargoQueriesImpl, CargoViewProjectionWriter}
+import io.cafienne.bounded.cargosample.materializers.{CargoLmdbClient, CargoQueriesImpl, CargoViewProjectionWriter}
 import io.cafienne.bounded.config.Configured
 
 import scala.concurrent.Await

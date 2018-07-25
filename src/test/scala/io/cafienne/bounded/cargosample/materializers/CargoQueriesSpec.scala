@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
-package io.cafienne.bounded.cargosample.projections
+package io.cafienne.bounded.cargosample.materializers
 
 import java.io.File
 import java.time.ZonedDateTime
@@ -18,7 +18,7 @@ import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
 import io.cafienne.bounded.eventmaterializers.OffsetStoreProvider
 import io.cafienne.bounded.cargosample.SpecConfig
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
-import io.cafienne.bounded.cargosample.projections.QueriesJsonProtocol.CargoViewItem
+import io.cafienne.bounded.cargosample.materializers.QueriesJsonProtocol.CargoViewItem
 import io.cafienne.bounded.test.TestableProjection
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures

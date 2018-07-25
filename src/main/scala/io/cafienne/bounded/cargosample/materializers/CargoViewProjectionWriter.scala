@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
-package io.cafienne.bounded.cargosample.projections
+package io.cafienne.bounded.cargosample.materializers
 
 import akka.Done
 import akka.actor.ActorSystem
@@ -10,7 +10,7 @@ import io.cafienne.bounded.eventmaterializers.AbstractReplayableEventMaterialize
 import com.typesafe.scalalogging.Logger
 import io.cafienne.bounded.cargosample.domain.Cargo
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoPlanned, NewRouteSpecified}
-import io.cafienne.bounded.cargosample.projections.QueriesJsonProtocol.CargoViewItem
+import io.cafienne.bounded.cargosample.materializers.QueriesJsonProtocol.CargoViewItem
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
