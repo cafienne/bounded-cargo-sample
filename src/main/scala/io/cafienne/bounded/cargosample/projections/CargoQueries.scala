@@ -6,8 +6,6 @@ package io.cafienne.bounded.cargosample.projections
 
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.CargoId
 
-import scala.concurrent.Future
-
 trait CargoQueries {
   import QueriesJsonProtocol._
 

@@ -10,7 +10,6 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 import stamina._
 
 object UnsupportedEventProtocol extends DefaultJsonProtocol {
-  import ProtocolJsonProtocol._
   import io.cafienne.bounded.cargosample.domain.CargoDomainJsonProtocol._
 
   case class UnsupportedEventAggregateId(id: String) extends AggregateRootId {
