@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
-package io.cafienne.bounded.cargosample.materializers
+package io.cafienne.bounded.cargosample.eventmaterializers
 
 import java.io.File
 import java.time.ZonedDateTime
@@ -18,7 +18,7 @@ import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
 import io.cafienne.bounded.eventmaterializers.OffsetStoreProvider
 import io.cafienne.bounded.cargosample.SpecConfig
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
-import io.cafienne.bounded.cargosample.materializers.QueriesJsonProtocol.CargoViewItem
+import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.CargoViewItem
 import io.cafienne.bounded.test.TestableProjection
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
@@ -61,7 +61,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
 
   // Create Query and Writer for testing
   object cargoQueries extends CargoQueriesImpl(cargoLmdbClient)
-  val cargoWriter = new CargoViewProjectionWriter(system, cargoLmdbClient) with OffsetStoreProvider
+  val cargoWriter = new CargoViewWriter(system, cargoLmdbClient) with OffsetStoreProvider
 
   "Cargo Query" must {
     "add and retrieve valid cargo based on replay" in {

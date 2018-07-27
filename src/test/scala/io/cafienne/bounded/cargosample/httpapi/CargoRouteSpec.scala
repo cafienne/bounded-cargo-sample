@@ -16,7 +16,7 @@ import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
 import io.cafienne.bounded.cargosample.httpapi.HttpJsonProtocol.ErrorResponse
-import io.cafienne.bounded.cargosample.materializers.{CargoQueries, QueriesJsonProtocol}
+import io.cafienne.bounded.cargosample.eventmaterializers.{CargoQueries, QueriesJsonProtocol}
 import org.scalatest._
 
 import scala.concurrent.Future

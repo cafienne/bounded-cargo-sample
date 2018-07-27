@@ -12,7 +12,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import io.cafienne.bounded.aggregate.CommandGateway
-import io.cafienne.bounded.cargosample.materializers.CargoQueries
+import io.cafienne.bounded.cargosample.eventmaterializers.CargoQueries
 import io.cafienne.bounded.config.Configured
 import spray.json._
 
