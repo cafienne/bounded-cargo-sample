@@ -17,7 +17,7 @@ import io.cafienne.bounded.aggregate.DefaultCommandGateway
 import io.cafienne.bounded.eventmaterializers._
 import io.cafienne.bounded.cargosample.domain.{CargoCreator, FixedLocationsProvider}
 import io.cafienne.bounded.cargosample.httpapi.HttpApiEndpoint
-import io.cafienne.bounded.cargosample.materializers.{CargoLmdbClient, CargoQueriesImpl, CargoViewProjectionWriter}
+import io.cafienne.bounded.cargosample.eventmaterializers.{CargoLmdbClient, CargoQueriesImpl, CargoViewWriter}
 import io.cafienne.bounded.config.Configured
 
 import scala.concurrent.Await
@@ -52,7 +52,7 @@ object Boot extends App with Configured {
   val cargoLmdbClient = new CargoLmdbClient(new File(lmdbPath, "cargo"))
 
   val cargoQueries              = new CargoQueriesImpl(cargoLmdbClient)
-  val cargoViewProjectionWriter = new CargoViewProjectionWriter(system, cargoLmdbClient) with ReadJournalOffsetStore
+  val cargoViewProjectionWriter = new CargoViewWriter(system, cargoLmdbClient) with ReadJournalOffsetStore
 
   val eventMaterializers = new EventMaterializers(
     List(

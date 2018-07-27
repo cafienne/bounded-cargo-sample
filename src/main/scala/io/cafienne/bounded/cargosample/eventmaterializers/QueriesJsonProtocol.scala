@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
-package io.cafienne.bounded.cargosample.materializers
+package io.cafienne.bounded.cargosample.eventmaterializers
 
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.CargoId
 import io.swagger.annotations.{ApiModel, ApiModelProperty}

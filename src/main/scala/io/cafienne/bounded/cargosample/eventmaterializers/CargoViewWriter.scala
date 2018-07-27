@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
  */
 
-package io.cafienne.bounded.cargosample.materializers
+package io.cafienne.bounded.cargosample.eventmaterializers
 
 import akka.Done
 import akka.actor.ActorSystem
@@ -10,12 +10,12 @@ import io.cafienne.bounded.eventmaterializers.AbstractReplayableEventMaterialize
 import com.typesafe.scalalogging.Logger
 import io.cafienne.bounded.cargosample.domain.Cargo
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoPlanned, NewRouteSpecified}
-import io.cafienne.bounded.cargosample.materializers.QueriesJsonProtocol.CargoViewItem
+import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.CargoViewItem
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
 
-class CargoViewProjectionWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient)
+class CargoViewWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient)
     extends AbstractReplayableEventMaterializer(actorSystem) {
 
   /**
@@ -28,7 +28,7 @@ class CargoViewProjectionWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient
     */
   override val matMappingName: String = "cargo-view"
 
-  override lazy val logger: Logger = Logger(LoggerFactory.getLogger(CargoViewProjectionWriter.this.getClass))
+  override lazy val logger: Logger = Logger(LoggerFactory.getLogger(CargoViewWriter.this.getClass))
 
   override def handleReplayEvent(evt: Any): Future[Done] = handleEvent(evt)
 
