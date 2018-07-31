@@ -66,8 +66,8 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val locationFmt           = jsonFormat1(Location)
-  implicit val routeSpecificationFmt = jsonFormat3(RouteSpecification)
+  implicit val locationFmt              = jsonFormat1(Location)
+  implicit val deliverySpecificationFmt = jsonFormat3(DeliverySpecification)
 
   implicit object CargoNotFoundFmt extends RootJsonFormat[CargoNotFound] {
     override def read(json: JsValue): CargoNotFound =
@@ -86,7 +86,7 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
       )
   }
 
-  implicit val planCargoFmt       = jsonFormat4(PlanCargo)
-  implicit val specifyNewRouteFmt = jsonFormat3(SpecifyNewRoute)
+  implicit val planCargoFmt          = jsonFormat4(PlanCargo)
+  implicit val specifyNewDeliveryFmt = jsonFormat3(SpecifyNewDelivery)
 
 }

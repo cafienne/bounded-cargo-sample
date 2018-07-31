@@ -46,7 +46,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
     "Create a new aggregate" in {
       val cargoId2   = CargoId(java.util.UUID.fromString("49A6553D-7E0A-49E8-BE20-925839F524B2"))
       val trackingId = TrackingId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee573"))
-      val routeSpecification = RouteSpecification(
+      val routeSpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
         ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
@@ -66,28 +66,28 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
     "Change the route specification for an existing Cargo Delivery Using AggregateRootTestFixture" in {
       val cargoId3   = CargoId(java.util.UUID.fromString("D31E3C57-E63E-4AD5-A00B-E5FA9196E80D"))
       val trackingId = TrackingId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee573"))
-      val routeSpecification = RouteSpecification(
+      val routeSpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
         ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
       )
       val cargoPlannedEvent = CargoPlanned(MetaData.fromCommand(metaData), cargoId3, trackingId, routeSpecification)
 
-      val newRouteSpecification = RouteSpecification(
+      val newDeliverySpecification = DeliverySpecification(
         Location("home"),
         Location("newDestination"),
         ZonedDateTime.parse("2018-03-04T10:45:45+01:00[Europe/Amsterdam]")
       )
-      val specifyNewRouteCommand = SpecifyNewRoute(metaData, cargoId3, newRouteSpecification)
+      val specifyNewDeliveryCommand = SpecifyNewDelivery(metaData, cargoId3, newDeliverySpecification)
 
       val ar = TestableAggregateRoot
         .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent)
-        .when(specifyNewRouteCommand)
+        .when(specifyNewDeliveryCommand)
 
       // You see that this only shows the events that are 'published' via when
-      ar.events should contain(NewRouteSpecified(MetaData.fromCommand(metaData), cargoId3, newRouteSpecification))
+      ar.events should contain(NewDeliverySpecified(MetaData.fromCommand(metaData), cargoId3, newDeliverySpecification))
 
-      val targetState = CargoAggregateState(trackingId, newRouteSpecification)
+      val targetState = CargoAggregateState(trackingId, newDeliverySpecification)
       ar.currentState map { state =>
         assert(state.get == targetState)
       }

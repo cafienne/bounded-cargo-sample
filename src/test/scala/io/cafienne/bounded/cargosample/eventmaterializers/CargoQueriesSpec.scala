@@ -54,7 +54,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
   val cargoId1           = CargoId(UUID.fromString("93ea7372-3181-11e7-93ae-92361f002671"))
   val cargoId2           = CargoId(UUID.fromString("93ea7372-3181-11e7-93ae-92361f002672"))
   val trackingId         = TrackingId(UUID.fromString("67C1FBD1-E634-4B4E-BF31-BBA6D039C264"))
-  val routeSpecification = RouteSpecification(Location("Amsterdam"), Location("New York"), expectedDeliveryTime)
+  val routeSpecification = DeliverySpecification(Location("Amsterdam"), Location("New York"), expectedDeliveryTime)
 
   val lmdbFile        = new File("target", "cargo")
   val cargoLmdbClient = new CargoLmdbClient(lmdbFile)
@@ -86,7 +86,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
         assert(replayResult.offset == Some(Sequence(1L)))
       }
 
-      val evt2 = NewRouteSpecified(
+      val evt2 = NewDeliverySpecified(
         MetaData.fromCommand(metaData),
         cargoId1,
         routeSpecification.copy(destination = Location("Oslo"))

@@ -4,19 +4,19 @@
 
 package io.cafienne.bounded.cargosample.persistence
 
-import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoPlanned, NewRouteSpecified}
+import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoPlanned, NewDeliverySpecified}
 import stamina.json.persister
 
 object CargoPersisters {
 
   import io.cafienne.bounded.cargosample.persistence.CargoDomainEventJsonProtocol._
 
-  val v1CargoPlanned      = persister[CargoPlanned]("cargoplanned")
-  val v1NewRouteSpecified = persister[NewRouteSpecified]("newroutespecified")
+  val v1CargoPlanned         = persister[CargoPlanned]("cargoplanned")
+  val v1NewDeliverySpecified = persister[NewDeliverySpecified]("newdeliveryspecified")
 
   def persisters = List(
     v1CargoPlanned,
-    v1NewRouteSpecified
+    v1NewDeliverySpecified
   )
 }
 

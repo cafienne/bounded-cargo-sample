@@ -9,7 +9,7 @@ import akka.actor.ActorSystem
 import io.cafienne.bounded.eventmaterializers.AbstractReplayableEventMaterializer
 import com.typesafe.scalalogging.Logger
 import io.cafienne.bounded.cargosample.domain.Cargo
-import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoPlanned, NewRouteSpecified}
+import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoPlanned, NewDeliverySpecified}
 import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.CargoViewItem
 import org.slf4j.LoggerFactory
 
@@ -38,18 +38,18 @@ class CargoViewWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient)
         case event: CargoPlanned =>
           val cargoViewItem = CargoViewItem(
             event.cargoId,
-            event.routeSpecification.origin.name,
-            event.routeSpecification.destination.name,
-            event.routeSpecification.arrivalDeadline
+            event.deliverySpecification.origin.name,
+            event.deliverySpecification.destination.name,
+            event.deliverySpecification.arrivalDeadline
           )
           lmdbClient.put(event.cargoId.idAsString, cargoViewItem.toJson.compactPrint)
           Future.successful(Done)
-        case event: NewRouteSpecified =>
+        case event: NewDeliverySpecified =>
           val cargoViewItem = CargoViewItem(
             event.id,
-            event.routeSpecification.origin.name,
-            event.routeSpecification.destination.name,
-            event.routeSpecification.arrivalDeadline
+            event.deliverySpecification.origin.name,
+            event.deliverySpecification.destination.name,
+            event.deliverySpecification.arrivalDeadline
           )
           lmdbClient.put(event.id.idAsString, cargoViewItem.toJson.compactPrint)
           Future.successful(Done)

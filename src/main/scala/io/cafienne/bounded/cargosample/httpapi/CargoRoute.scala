@@ -114,7 +114,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
                 metadata,
                 CargoId(java.util.UUID.randomUUID()),
                 TrackingId(planCargo.trackingId),
-                planCargo.routeSpecification
+                planCargo.deliverySpecification
               )
             )
           ) {

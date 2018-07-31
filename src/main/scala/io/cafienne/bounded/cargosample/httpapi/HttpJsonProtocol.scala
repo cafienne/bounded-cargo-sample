@@ -6,7 +6,7 @@ package io.cafienne.bounded.cargosample.httpapi
 
 import java.util.UUID
 
-import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.RouteSpecification
+import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.DeliverySpecification
 import spray.json._
 
 /**
@@ -18,7 +18,7 @@ object HttpJsonProtocol extends DefaultJsonProtocol {
   import io.cafienne.bounded.aggregate.ProtocolJsonProtocol._
   import io.cafienne.bounded.cargosample.domain.CargoDomainJsonProtocol._
 
-  case class PlanCargo(trackingId: UUID, routeSpecification: RouteSpecification)
+  case class PlanCargo(trackingId: UUID, deliverySpecification: DeliverySpecification)
 
   implicit val planCargoFmt = jsonFormat2(PlanCargo)
 

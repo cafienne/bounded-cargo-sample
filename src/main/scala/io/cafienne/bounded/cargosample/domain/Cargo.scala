@@ -31,9 +31,11 @@ class Cargo(
   override def handleCommand(command: DomainCommand, state: Option[CargoAggregateState]): Reply = {
     command match {
       case cmd: PlanCargo =>
-        Ok(Seq(CargoPlanned(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.trackingId, cmd.routeSpecification)))
-      case cmd: SpecifyNewRoute =>
-        Ok(Seq(NewRouteSpecified(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.routeSpecification)))
+        Ok(
+          Seq(CargoPlanned(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.trackingId, cmd.deliverySpecification))
+        )
+      case cmd: SpecifyNewDelivery =>
+        Ok(Seq(NewDeliverySpecified(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.deliverySpecification)))
       case other => Ko(new UnexpectedCommand(other))
     }
   }
@@ -41,7 +43,7 @@ class Cargo(
   override def newState(evt: DomainEvent): Option[CargoAggregateState] = {
     evt match {
       case evt: CargoPlanned =>
-        Some(CargoAggregateState(evt.trackingId, evt.routeSpecification))
+        Some(CargoAggregateState(evt.trackingId, evt.deliverySpecification))
       case _ =>
         throw new IllegalArgumentException(s"Event $evt is not valid to create a new CargoAggregateState")
     }
@@ -51,15 +53,15 @@ class Cargo(
 
 object Cargo {
 
-  case class CargoAggregateState(trackingId: TrackingId, routeSpecification: RouteSpecification)
+  case class CargoAggregateState(trackingId: TrackingId, deliverySpecification: DeliverySpecification)
       extends AggregateState[CargoAggregateState] {
 
     override def update(evt: DomainEvent): Option[CargoAggregateState] = {
       evt match {
-        case CargoPlanned(_, _, newTrackingId, newRouteSpecification) =>
-          Some(CargoAggregateState(newTrackingId, newRouteSpecification))
-        case NewRouteSpecified(_, _, newRouteSpecification) =>
-          Some(this.copy(routeSpecification = newRouteSpecification))
+        case CargoPlanned(_, _, newTrackingId, newDeliverySpecification) =>
+          Some(CargoAggregateState(newTrackingId, newDeliverySpecification))
+        case NewDeliverySpecified(_, _, newDeliverySpecification) =>
+          Some(this.copy(deliverySpecification = newDeliverySpecification))
         case _ => Some(this)
       }
     }
