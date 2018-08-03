@@ -11,6 +11,8 @@ import org.lmdbjava.DbiFlags.MDB_CREATE
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.ByteBuffer.allocateDirect
 
+import org.slf4j.LoggerFactory
+
 trait LmdbClient {
 
   def put(key: String, value: String): Unit = ???
@@ -23,7 +25,22 @@ trait LmdbClient {
 
 class CargoLmdbClient(lmdbPath: File) extends LmdbClient {
 
+  private val logger = LoggerFactory.getLogger("CargoLmdbClient")
   private val dbSize = 1000000
+
+  if (!lmdbPath.exists()) {
+    val parentFolder = new File(lmdbPath.getParent)
+    if (!parentFolder.exists()) {
+      if (parentFolder.mkdirs()) {
+        logger.debug("Created {} in order to store LMDB files", parentFolder.getAbsolutePath)
+      } else {
+        logger.debug(
+          "Could not create {} in order to store LMDB files, please create this folder by hand and restart",
+          parentFolder.getAbsolutePath
+        )
+      }
+    }
+  }
 
   val env = Env.create
     .setMapSize(dbSize)
