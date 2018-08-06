@@ -112,8 +112,25 @@ object CargoDomainProtocol {
     override def id: CargoId = cargoId
   }
 
-  trait CargoDomainException extends NoStackTrace {
+  trait CargoDomainException extends NoStackTrace with HandlingFailure {
     val msg: String
+  }
+
+  class LoadingFailure(override val msg: String) extends Exception(msg) with CargoDomainException {
+    def this(msg: String, cause: Throwable) {
+      this(msg)
+      initCause(cause)
+    }
+  }
+
+  object LoadingFailure {
+    def apply(msg: String): LoadingFailure =
+      new LoadingFailure(msg)
+    def apply(msg: String, cause: Throwable): LoadingFailure =
+      new LoadingFailure(msg, cause)
+
+    def unapply(e: LoadingFailure): Option[(String, Option[Throwable])] =
+      Some((e.getMessage, Option(e.getCause)))
   }
 
   class CargoNotFound(override val msg: String) extends Exception(msg) with CargoDomainException {

@@ -36,6 +36,14 @@ class Cargo(
         )
       case cmd: SpecifyNewDelivery =>
         Ok(Seq(NewDeliverySpecified(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.deliverySpecification)))
+      case cmd: Loading =>
+        if (state.isDefined && state.get.currentCarrierMovement.isDefined) {
+          Ko(LoadingFailure(s"Cannot load a new Cargo as there is already a shipment loaded $state"))
+        } else {
+          Ok(Seq(Loaded(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
+        }
+      case cmd: Unloading =>
+        Ok(Seq(Unloaded(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
       case other => Ko(new UnexpectedCommand(other))
     }
   }
@@ -53,8 +61,13 @@ class Cargo(
 
 object Cargo {
 
-  case class CargoAggregateState(trackingId: TrackingId, deliverySpecification: DeliverySpecification)
-      extends AggregateState[CargoAggregateState] {
+  case class CarrierMovement(versselVoyageId: VesselVoyageId)
+
+  case class CargoAggregateState(
+    trackingId: TrackingId,
+    deliverySpecification: DeliverySpecification,
+    currentCarrierMovement: Option[CarrierMovement] = None
+  ) extends AggregateState[CargoAggregateState] {
 
     override def update(evt: DomainEvent): Option[CargoAggregateState] = {
       evt match {
@@ -62,6 +75,10 @@ object Cargo {
           Some(CargoAggregateState(newTrackingId, newDeliverySpecification))
         case NewDeliverySpecified(_, _, newDeliverySpecification) =>
           Some(this.copy(deliverySpecification = newDeliverySpecification))
+        case Loaded(_, _, _, vesselVoyageId) =>
+          Some(this.copy(currentCarrierMovement = Some(CarrierMovement(vesselVoyageId))))
+        case Unloaded(_, _, _, _) =>
+          Some(this.copy(currentCarrierMovement = None))
         case _ => Some(this)
       }
     }
