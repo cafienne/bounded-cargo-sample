@@ -17,6 +17,7 @@ import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.SpecConfig
 import io.cafienne.bounded.test.TestableAggregateRoot
+import io.cafienne.bounded.test.TestableAggregateRoot.CommandHandlingException
 import org.scalatest._
 
 import scala.concurrent.duration._
@@ -111,13 +112,13 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         Location("amsterdam"),
         vesselVoyageId
       )
+
       val ar = TestableAggregateRoot
         .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent)
         .when(loadCargo)
 
       // You see that this only shows the events that are 'published' via when
       ar.events should contain(Loaded(MetaData.fromCommand(metaData), cargoId3, Location("amsterdam"), vesselVoyageId))
-
       val targetState = CargoAggregateState(trackingId, deliverySpecification, Some(CarrierMovement(vesselVoyageId)))
       ar.currentState map { state =>
         assert(state.get == targetState)
@@ -135,7 +136,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       )
       val cargoPlannedEvent = CargoPlanned(MetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
       val vesselVoyageId    = VesselVoyageId(UUID.fromString("AC1000CD-20FE-48B2-8828-F51F1C3114C4"))
-      val cargoLoaded = Loaded(
+      val cargoLoadedEvent = Loaded(
         MetaData.fromCommand(metaData),
         cargoId3,
         Location("amsterdam"),
@@ -149,19 +150,10 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         VesselVoyageId(UUID.fromString("629167F9-2095-485F-B3E2-D38FDEB7A345"))
       )
 
-      val ar = TestableAggregateRoot
-        .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent)
-        .when(newLoad)
-
-      // Expect a Ko message here
-
-      fail("Check if we have a Ko message here")
-
-      // You see that this only shows the events that are 'published' via when
-
-      val targetState = CargoAggregateState(trackingId, deliverySpecification, Some(CarrierMovement(vesselVoyageId)))
-      ar.currentState map { state =>
-        assert(state.get == targetState)
+      an[CommandHandlingException] should be thrownBy {
+        val ar = TestableAggregateRoot
+          .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent, cargoLoadedEvent)
+          .when(newLoad)
       }
     }
   }
