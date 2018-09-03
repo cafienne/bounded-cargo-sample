@@ -3,16 +3,16 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val akka = "2.5.14"
+    val akka = "2.5.16"
     val akkaHttp = "10.1.4"
     val stamina = "0.1.4"
     val persistenceInMem = "2.5.1.1"
-    val persistenceCassandra = "0.83"
+    val persistenceCassandra = "0.89"
     val bounded = "0.1.1"
-    val guava = "20.0"
+    val guava = "26.0-jre"
     val sprayJson = "1.3.4"
-    val scalaLogging = "3.5.0"
-    val scalaTest = "3.0.1"
+    val scalaLogging = "3.9.0"
+    val scalaTest = "3.0.5"
   }
 
   val dependencies =
@@ -38,18 +38,18 @@ object Dependencies {
       "org.scalatest"               %% "scalatest"                   % Versions.scalaTest % Test,
       "com.scalapenos"              %% "stamina-testkit"             % "0.1.4" % Test,
       "org.scalamock"               %% "scalamock-scalatest-support" % "3.6.0" % Test,
-      "com.danielasfregola"         %% "random-data-generator"       % "2.3" % Test,
+      "com.danielasfregola"         %% "random-data-generator"       % "2.5" % Test,
       "com.typesafe.akka"           %% s"akka-http-testkit"          % Versions.akkaHttp % Test,
       "ch.qos.logback"              % "logback-classic"              % "1.2.3",
-      "net.logstash.logback"        % "logstash-logback-encoder"     % "4.10",
-      "io.swagger"                  % "swagger-jaxrs"                % "1.5.18",
+      "net.logstash.logback"        % "logstash-logback-encoder"     % "5.2",
+      "io.swagger"                  % "swagger-jaxrs"                % "1.5.21",
       // As suggested in https://stackoverflow.com/questions/43574426/how-to-resolve-java-lang-noclassdeffounderror-javax-xml-bind-jaxbexception-in-j
       // to resolve blow-up due to swagger :  java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlRootElement.
       "javax.xml.bind"              % "jaxb-api"                     % "2.3.0",
-      "com.github.swagger-akka-http" %% "swagger-akka-http"          % "0.14.0",
-      "org.iq80.leveldb"            % "leveldb"                      % "0.9",
+      "com.github.swagger-akka-http" %% "swagger-akka-http"          % "1.0.0",
+      "org.iq80.leveldb"            % "leveldb"                      % "0.10",
       "org.fusesource.leveldbjni"   % "leveldbjni-all"               % "1.8",
-      "org.lmdbjava"                % "lmdbjava"                     % "0.6.0",
+      "org.lmdbjava"                % "lmdbjava"                     % "0.6.1",
       "ch.lightshed"                %% "courier"                     % "0.1.4"
     )
 
