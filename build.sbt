@@ -1,7 +1,7 @@
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtConfig
 
 lazy val basicSettings = {
-  val currentScalaVersion = "2.12.6"
+  val currentScalaVersion = "2.12.16"
   val scala211Version     = "2.11.11"
 
   Seq(
