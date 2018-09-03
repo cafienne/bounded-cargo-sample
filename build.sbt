@@ -1,7 +1,7 @@
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtConfig
 
 lazy val basicSettings = {
-  val currentScalaVersion = "2.12.16"
+  val currentScalaVersion = "2.12.6"
   val scala211Version     = "2.11.11"
 
   Seq(
@@ -37,7 +37,7 @@ lazy val root = (project in file("."))
   .settings(basicSettings: _*)
   .settings(publishArtifact := false,
     name := "Bounded Cargo Sample",
-    libraryDependencies ++= Dependencies.baseDeps ++ Dependencies.persistanceLmdbDBDeps ++ Dependencies.persistenceLevelDBDeps
+    libraryDependencies ++= Dependencies.dependencies
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(

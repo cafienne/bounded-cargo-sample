@@ -15,7 +15,7 @@ object Dependencies {
     val scalaTest = "3.0.1"
   }
 
-  val baseDeps = {
+  val dependencies =
     Seq(
       "com.typesafe.akka"           %% s"akka-slf4j"                 % Versions.akka,
       "com.typesafe.akka"           %% s"akka-actor"                 % Versions.akka,
@@ -52,5 +52,5 @@ object Dependencies {
       "org.lmdbjava"                % "lmdbjava"                     % "0.6.0",
       "ch.lightshed"                %% "courier"                     % "0.1.4"
     )
-  }
+
 }
