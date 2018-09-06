@@ -15,7 +15,7 @@ object Dependencies {
     val scalaTest = "3.0.5"
   }
 
-  val dependencies =
+  lazy val dependencies =
     Seq(
       "com.typesafe.akka"           %% s"akka-slf4j"                 % Versions.akka,
       "com.typesafe.akka"           %% s"akka-actor"                 % Versions.akka,
