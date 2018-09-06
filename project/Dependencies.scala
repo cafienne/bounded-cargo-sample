@@ -27,7 +27,7 @@ object Dependencies {
       "com.google.guava"            % "guava"                        % Versions.guava,
       "com.scalapenos"              %% "stamina-json"                % Versions.stamina,
       "io.spray"                    %% "spray-json"                  % Versions.sprayJson,
-      "com.typesafe.akka"           %% "akka-persistence-cassandra"  % Versions.persistenceCassandra exclude("com.google.guava", "guava"), // force guava version 20 instead of 19
+      "com.typesafe.akka"           %% "akka-persistence-cassandra"  % Versions.persistenceCassandra exclude("com.google.guava", "guava"), // force given guava version instead of 19
       "com.github.dnvriend"         %% "akka-persistence-inmemory"   % Versions.persistenceInMem,
       "com.typesafe.scala-logging"  %% "scala-logging"               % Versions.scalaLogging,
       "com.typesafe.akka"           %% s"akka-http"                  % Versions.akkaHttp,
