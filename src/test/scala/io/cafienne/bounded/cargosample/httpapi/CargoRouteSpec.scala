@@ -35,7 +35,7 @@ class CargoRouteSpec extends FlatSpec with MustMatchers with ScalatestRouteTest 
   val cargoId1 = CargoId(UUID.fromString("8CD15DA4-006B-478C-8640-2FA52AA7657E"))
   val cargoViewItem1 =
     CargoViewItem(cargoId1, "Amsterdam", "New York", ZonedDateTime.parse("2018-01-01T12:25:38+01:00"))
-  val metadata = CommandMetaData(ZonedDateTime.now, None)
+  val metadata = CargoCommandMetaData(ZonedDateTime.now, None)
 
   val cargoQueries = new CargoQueries {
     override def getCargo(cargoId: CargoDomainProtocol.CargoId): Option[CargoViewItem] = {
@@ -58,7 +58,7 @@ class CargoRouteSpec extends FlatSpec with MustMatchers with ScalatestRouteTest 
             Ok(
               List(
                 CargoPlanned(
-                  MetaData.fromCommand(metadata),
+                  CargoMetaData.fromCommand(metadata),
                   cargoId1,
                   TrackingId(UUID.fromString("83AB1887-CC3D-434C-855C-34674E746BC0")),
                   RouteSpecification(

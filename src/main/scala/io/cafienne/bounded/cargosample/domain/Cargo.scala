@@ -31,9 +31,9 @@ class Cargo(
   override def handleCommand(command: DomainCommand, state: Option[CargoAggregateState]): Reply = {
     command match {
       case cmd: PlanCargo =>
-        Ok(Seq(CargoPlanned(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.trackingId, cmd.routeSpecification)))
+        Ok(Seq(CargoPlanned(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.trackingId, cmd.routeSpecification)))
       case cmd: SpecifyNewRoute =>
-        Ok(Seq(NewRouteSpecified(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.routeSpecification)))
+        Ok(Seq(NewRouteSpecified(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.routeSpecification)))
       case other => Ko(new UnexpectedCommand(other))
     }
   }

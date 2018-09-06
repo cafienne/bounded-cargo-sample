@@ -14,7 +14,7 @@ import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.server.{PathMatchers, Route}
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.{CargoCommandValidatorsImpl, CargoDomainProtocol}
-import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoId, CargoPlanned, TrackingId}
+import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoCommandMetaData, CargoId, CargoPlanned, TrackingId}
 import io.cafienne.bounded.cargosample.eventmaterializers.CargoQueries
 import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.CargoViewItem
 import io.swagger.annotations._
@@ -107,7 +107,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
     post {
       path("cargo") {
         entity(as[PlanCargo]) { planCargo =>
-          val metadata = CommandMetaData(ZonedDateTime.now(), None)
+          val metadata = CargoCommandMetaData(ZonedDateTime.now(), None)
           onComplete(
             commandGateway.sendAndAsk(
               CargoDomainProtocol.PlanCargo(
