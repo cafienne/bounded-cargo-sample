@@ -53,7 +53,7 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
   }
 
   implicit val CargoCommandMetaDataJsonFormat = jsonFormat3(CargoCommandMetaData)
-  implicit val MetaDataJsonFormat        = jsonFormat5(CargoMetaData.apply)
+  implicit val MetaDataJsonFormat             = jsonFormat5(CargoMetaData.apply)
 
   implicit object chargeSessionIdFmt extends RootJsonFormat[TrackingId] {
     override def write(obj: TrackingId): JsValue = JsString(obj.id.toString)

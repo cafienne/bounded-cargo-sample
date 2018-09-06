@@ -55,7 +55,9 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId2)
         .when(PlanCargo(metaData, cargoId2, trackingId, routeSpecification))
 
-      ar.events should contain(CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId2, trackingId, routeSpecification))
+      ar.events should contain(
+        CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId2, trackingId, routeSpecification)
+      )
       val targetState = CargoAggregateState(trackingId, routeSpecification)
       ar.currentState map { state =>
         assert(state.get == targetState)
@@ -70,7 +72,8 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         Location("destination"),
         ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
       )
-      val cargoPlannedEvent = CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, routeSpecification)
+      val cargoPlannedEvent =
+        CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, routeSpecification)
 
       val newRouteSpecification = RouteSpecification(
         Location("home"),

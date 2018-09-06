@@ -26,7 +26,11 @@ object CargoDomainProtocol {
 
   case class CargoUserContext(userId: UserId, roles: List[String]) extends UserContext
 
-  case class CargoCommandMetaData(timestamp: ZonedDateTime, val userContext: Option[UserContext], override val commandId: UUID = UUID.randomUUID()) extends CommandMetaData
+  case class CargoCommandMetaData(
+    timestamp: ZonedDateTime,
+    val userContext: Option[UserContext],
+    override val commandId: UUID = UUID.randomUUID()
+  ) extends CommandMetaData
 
   case class TrackingId(id: UUID)
   case class Location(name: String)
@@ -44,11 +48,18 @@ object CargoDomainProtocol {
     val metaData: CargoCommandMetaData
   }
 
-  case class CargoMetaData(timestamp: ZonedDateTime,  userContext: Option[UserContext], causedByCommand: Option[UUID],
-  buildInfo: BuildInfo,   runTimeInfo: RuntimeInfo) extends MetaData
+  case class CargoMetaData(
+    timestamp: ZonedDateTime,
+    userContext: Option[UserContext],
+    causedByCommand: Option[UUID],
+    buildInfo: BuildInfo,
+    runTimeInfo: RuntimeInfo
+  ) extends MetaData
 
   object CargoMetaData {
-    def fromCommand(metadata: CargoCommandMetaData)(implicit buildInfo: BuildInfo, runtimeInfo: RuntimeInfo): CargoMetaData = {
+    def fromCommand(
+      metadata: CargoCommandMetaData
+    )(implicit buildInfo: BuildInfo, runtimeInfo: RuntimeInfo): CargoMetaData = {
       CargoMetaData(
         metadata.timestamp,
         metadata.userContext,
