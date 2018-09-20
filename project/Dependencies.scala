@@ -8,7 +8,7 @@ object Dependencies {
     val stamina = "0.1.4"
     val persistenceInMem = "2.5.1.1"
     val persistenceCassandra = "0.89"
-    val bounded = "0.1.1"
+    val bounded = "0.1.4"
     val guava = "26.0-jre"
     val sprayJson = "1.3.4"
     val scalaLogging = "3.9.0"

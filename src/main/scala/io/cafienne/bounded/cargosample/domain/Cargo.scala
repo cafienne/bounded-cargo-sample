@@ -32,18 +32,25 @@ class Cargo(
     command match {
       case cmd: PlanCargo =>
         Ok(
-          Seq(CargoPlanned(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.trackingId, cmd.deliverySpecification))
+          Seq(
+            CargoPlanned(
+              CargoMetaData.fromCommand(cmd.metaData),
+              cmd.cargoId,
+              cmd.trackingId,
+              cmd.deliverySpecification
+            )
+          )
         )
       case cmd: SpecifyNewDelivery =>
-        Ok(Seq(NewDeliverySpecified(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.deliverySpecification)))
+        Ok(Seq(NewDeliverySpecified(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.deliverySpecification)))
       case cmd: Loading =>
         if (state.isDefined && state.get.currentCarrierMovement.isDefined) {
           Ko(LoadingFailure(s"Cannot load a new Cargo as there is already a shipment loaded $state"))
         } else {
-          Ok(Seq(Loaded(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
+          Ok(Seq(Loaded(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
         }
       case cmd: Unloading =>
-        Ok(Seq(Unloaded(MetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
+        Ok(Seq(Unloaded(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
       case other => Ko(new UnexpectedCommand(other))
     }
   }

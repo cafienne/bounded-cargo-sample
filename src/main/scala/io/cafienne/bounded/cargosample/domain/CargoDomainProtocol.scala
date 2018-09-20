@@ -99,21 +99,33 @@ object CargoDomainProtocol {
   }
 
   case class SpecifyNewDelivery(
-    metaData: CommandMetaData,
+    metaData: CargoCommandMetaData,
     cargoId: CargoId,
     deliverySpecification: DeliverySpecification
   ) extends CargoDomainCommand {
     override def aggregateRootId: CargoId = cargoId
   }
 
-  case class SpecifyNewRoute(metaData: CargoCommandMetaData, cargoId: CargoId, routeSpecification: RouteSpecification)
-  case class Loading(metaData: CommandMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
-      extends CargoDomainCommand {
+  case class SpecifyNewRoute(
+    metaData: CargoCommandMetaData,
+    cargoId: CargoId,
+    deliverySpecification: DeliverySpecification
+  )
+  case class Loading(
+    metaData: CargoCommandMetaData,
+    cargoId: CargoId,
+    location: Location,
+    vesselVoyageId: VesselVoyageId
+  ) extends CargoDomainCommand {
     override def aggregateRootId: CargoId = cargoId
   }
 
-  case class Unloading(metaData: CommandMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
-      extends CargoDomainCommand {
+  case class Unloading(
+    metaData: CargoCommandMetaData,
+    cargoId: CargoId,
+    location: Location,
+    vesselVoyageId: VesselVoyageId
+  ) extends CargoDomainCommand {
     override def aggregateRootId: CargoId = cargoId
   }
 
@@ -127,18 +139,21 @@ object CargoDomainProtocol {
     override def id: CargoId = cargoId
   }
 
-  case class NewRouteSpecified(metaData: CargoMetaData, CargoId: CargoId, routeSpecification: RouteSpecification)
-  case class NewDeliverySpecified(metaData: MetaData, cargoId: CargoId, deliverySpecification: DeliverySpecification)
-      extends CargoDomainEvent {
+  //case class NewRouteSpecified(metaData: CargoMetaData, CargoId: CargoId, routeSpecification: RouteSpecification)
+  case class NewDeliverySpecified(
+    metaData: CargoMetaData,
+    cargoId: CargoId,
+    deliverySpecification: DeliverySpecification
+  ) extends CargoDomainEvent {
     override def id: CargoId = cargoId
   }
 
-  case class Loaded(metaData: MetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
+  case class Loaded(metaData: CargoMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
       extends HandlingEvent {
     override def id: CargoId = cargoId
   }
 
-  case class Unloaded(metaData: MetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
+  case class Unloaded(metaData: CargoMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
       extends HandlingEvent {
     override def id: CargoId = cargoId
   }

@@ -14,7 +14,6 @@ import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
 import io.cafienne.bounded.cargosample.domain.Cargo.CargoAggregateState
 import io.cafienne.bounded.cargosample.domain.Cargo.CarrierMovement
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
-import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.SpecConfig
 import io.cafienne.bounded.test.TestableAggregateRoot
 import io.cafienne.bounded.test.TestableAggregateRoot.CommandHandlingException
@@ -28,7 +27,6 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
   implicit val system  = ActorSystem("CargoTestSystem", SpecConfig.testConfigDVriendInMem)
   implicit val buildInfo =
     BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
-//  implicit val runtimeInfo = RuntimeInfo(System.currentTimeMillis().toString)
   implicit val runtimeInfo = RuntimeInfo("spec")
 
   //Creation of Aggregate Roots that make use of dependencies is organized via the Creator
@@ -90,7 +88,9 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         .when(specifyNewDeliveryCommand)
 
       // You see that this only shows the events that are 'published' via when
-      ar.events should contain(NewDeliverySpecified(MetaData.fromCommand(metaData), cargoId3, newDeliverySpecification))
+      ar.events should contain(
+        NewDeliverySpecified(CargoMetaData.fromCommand(metaData), cargoId3, newDeliverySpecification)
+      )
 
       val targetState = CargoAggregateState(trackingId, newDeliverySpecification)
       ar.currentState map { state =>
@@ -99,16 +99,16 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
     }
 
     "Load a cargo for an Iterary" in {
-      val cargoId3        = CargoId(java.util.UUID.fromString("D31E3C57-E63E-4AD5-A00B-E5FA9196E80D"))
-      val trackingId      = TrackingId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee573"))
-      val deliveryDueDate = ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
+      val cargoId3   = CargoId(java.util.UUID.fromString("D31E3C57-E63E-4AD5-A00B-E5FA9196E80D"))
+      val trackingId = TrackingId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee573"))
       val deliverySpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
         ZonedDateTime.parse("2018-03-03T10:15:30+01:00")
       )
-      val cargoPlannedEvent = CargoPlanned(MetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
-      val vesselVoyageId    = VesselVoyageId(UUID.fromString("AC1000CD-20FE-48B2-8828-F51F1C3114C4"))
+      val cargoPlannedEvent =
+        CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
+      val vesselVoyageId = VesselVoyageId(UUID.fromString("AC1000CD-20FE-48B2-8828-F51F1C3114C4"))
       val loadCargo = Loading(
         metaData,
         cargoId3,
@@ -121,7 +121,9 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         .when(loadCargo)
 
       // You see that this only shows the events that are 'published' via when
-      ar.events should contain(Loaded(MetaData.fromCommand(metaData), cargoId3, Location("amsterdam"), vesselVoyageId))
+      ar.events should contain(
+        Loaded(CargoMetaData.fromCommand(metaData), cargoId3, Location("amsterdam"), vesselVoyageId)
+      )
       val targetState = CargoAggregateState(trackingId, deliverySpecification, Some(CarrierMovement(vesselVoyageId)))
       ar.currentState map { state =>
         assert(state.get == targetState)
@@ -129,18 +131,18 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
     }
 
     "Cannot load a cargo for an Iterary" in {
-      val cargoId3        = CargoId(java.util.UUID.fromString("D31E3C57-E63E-4AD5-A00B-E5FA9196E80D"))
-      val trackingId      = TrackingId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee573"))
-      val deliveryDueDate = ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
+      val cargoId3   = CargoId(java.util.UUID.fromString("D31E3C57-E63E-4AD5-A00B-E5FA9196E80D"))
+      val trackingId = TrackingId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee573"))
       val deliverySpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
         ZonedDateTime.parse("2018-03-03T10:15:30+01:00")
       )
-      val cargoPlannedEvent = CargoPlanned(MetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
-      val vesselVoyageId    = VesselVoyageId(UUID.fromString("AC1000CD-20FE-48B2-8828-F51F1C3114C4"))
+      val cargoPlannedEvent =
+        CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
+      val vesselVoyageId = VesselVoyageId(UUID.fromString("AC1000CD-20FE-48B2-8828-F51F1C3114C4"))
       val cargoLoadedEvent = Loaded(
-        MetaData.fromCommand(metaData),
+        CargoMetaData.fromCommand(metaData),
         cargoId3,
         Location("amsterdam"),
         vesselVoyageId
@@ -154,7 +156,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       )
 
       an[CommandHandlingException] should be thrownBy {
-        val ar = TestableAggregateRoot
+        TestableAggregateRoot
           .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent, cargoLoadedEvent)
           .when(newLoad)
       }
