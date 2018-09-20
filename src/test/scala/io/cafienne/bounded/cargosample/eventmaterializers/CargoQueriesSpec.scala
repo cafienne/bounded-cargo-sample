@@ -13,7 +13,6 @@ import akka.event.{Logging, LoggingAdapter}
 import akka.persistence.query.Sequence
 import akka.testkit.TestKit
 import akka.util.Timeout
-import io.cafienne.bounded.aggregate.{CommandMetaData, MetaData}
 import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
 import io.cafienne.bounded.eventmaterializers.OffsetStoreProvider
 import io.cafienne.bounded.cargosample.SpecConfig
@@ -48,8 +47,8 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
     override def userId: UserId = userId1
   })
 
-  val metaData  = CommandMetaData(expectedDeliveryTime, None)
-  val metaData2 = CommandMetaData(expectedDeliveryTime, userContext)
+  val metaData  = CargoCommandMetaData(expectedDeliveryTime, None)
+  val metaData2 = CargoCommandMetaData(expectedDeliveryTime, userContext)
 
   val cargoId1           = CargoId(UUID.fromString("93ea7372-3181-11e7-93ae-92361f002671"))
   val cargoId2           = CargoId(UUID.fromString("93ea7372-3181-11e7-93ae-92361f002672"))
@@ -65,7 +64,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
 
   "Cargo Query" must {
     "add and retrieve valid cargo based on replay" in {
-      val evt1    = CargoPlanned(MetaData.fromCommand(metaData), cargoId1, trackingId, routeSpecification)
+      val evt1    = CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId1, trackingId, routeSpecification)
       val fixture = TestableProjection.given(Seq(evt1))
 
       whenReady(fixture.startProjection(cargoWriter)) { replayResult =>
@@ -78,7 +77,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
       )
     }
     "add and retrieve an update on valid cargo based on new event after replay" in {
-      val evt1    = CargoPlanned(MetaData.fromCommand(metaData), cargoId1, trackingId, routeSpecification)
+      val evt1    = CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId1, trackingId, routeSpecification)
       val fixture = TestableProjection.given(Seq(evt1))
 
       whenReady(fixture.startProjection(cargoWriter)) { replayResult =>
@@ -87,7 +86,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
       }
 
       val evt2 = NewDeliverySpecified(
-        MetaData.fromCommand(metaData),
+        CargoMetaData.fromCommand(metaData),
         cargoId1,
         routeSpecification.copy(destination = Location("Oslo"))
       )

@@ -41,7 +41,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
 
     override def userId: UserId = userId1
   })
-  val metaData = CommandMetaData(ZonedDateTime.now(ZoneOffset.UTC), userContext)
+  val metaData = CargoCommandMetaData(ZonedDateTime.now(ZoneOffset.UTC), userContext)
 
   "CargoAggregateRoot" must {
 
@@ -58,7 +58,9 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId2)
         .when(PlanCargo(metaData, cargoId2, trackingId, routeSpecification))
 
-      ar.events should contain(CargoPlanned(MetaData.fromCommand(metaData), cargoId2, trackingId, routeSpecification))
+      ar.events should contain(
+        CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId2, trackingId, routeSpecification)
+      )
       val targetState = CargoAggregateState(trackingId, routeSpecification)
       ar.currentState map { state =>
         assert(state.get == targetState)
@@ -73,7 +75,8 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         Location("destination"),
         ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
       )
-      val cargoPlannedEvent = CargoPlanned(MetaData.fromCommand(metaData), cargoId3, trackingId, routeSpecification)
+      val cargoPlannedEvent =
+        CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, routeSpecification)
 
       val newDeliverySpecification = DeliverySpecification(
         Location("home"),

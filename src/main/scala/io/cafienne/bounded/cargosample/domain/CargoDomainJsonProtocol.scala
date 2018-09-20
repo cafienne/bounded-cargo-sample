@@ -7,7 +7,6 @@ package io.cafienne.bounded.cargosample.domain
 import java.util.UUID
 
 import io.cafienne.bounded.UserContext
-import io.cafienne.bounded.aggregate.{CommandMetaData, MetaData}
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
 import spray.json.{RootJsonFormat, _}
 
@@ -63,8 +62,8 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val CommandMetaDataJsonFormat = jsonFormat3(CommandMetaData)
-  implicit val MetaDataJsonFormat        = jsonFormat5(MetaData.apply)
+  implicit val CargoCommandMetaDataJsonFormat = jsonFormat3(CargoCommandMetaData)
+  implicit val MetaDataJsonFormat             = jsonFormat5(CargoMetaData.apply)
 
   implicit object chargeSessionIdFmt extends RootJsonFormat[TrackingId] {
     override def write(obj: TrackingId): JsValue = JsString(obj.id.toString)

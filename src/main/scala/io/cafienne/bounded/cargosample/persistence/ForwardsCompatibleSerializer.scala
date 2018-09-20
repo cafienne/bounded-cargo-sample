@@ -6,6 +6,7 @@ package io.cafienne.bounded.cargosample.persistence
 
 import io.cafienne.bounded.aggregate._
 import com.typesafe.scalalogging.LazyLogging
+import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.CargoMetaData
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 import stamina._
 
@@ -15,7 +16,7 @@ object UnsupportedEventProtocol extends DefaultJsonProtocol {
   case class UnsupportedEventAggregateId(id: String) extends AggregateRootId {
     override def idAsString: String = id
   }
-  case class UnsupportedEvent(metaData: MetaData, id: UnsupportedEventAggregateId) extends DomainEvent
+  case class UnsupportedEvent(metaData: CargoMetaData, id: UnsupportedEventAggregateId) extends DomainEvent
 
   implicit val unsupportedAggregateIdFmt: RootJsonFormat[UnsupportedEventAggregateId] = jsonFormat1(
     UnsupportedEventAggregateId
