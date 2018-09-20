@@ -5,7 +5,7 @@ object Dependencies {
   val akkaVersion = "2.5.14"
   val staminaVersion = "0.1.4"
   val persistenceInMemVersion = "2.5.1.1"
-  val boundedVersion = "0.1.2"
+  val boundedVersion = "0.1.4"
 
   val baseDeps = {
     def akkaModule(name: String, version: String = akkaVersion) =
