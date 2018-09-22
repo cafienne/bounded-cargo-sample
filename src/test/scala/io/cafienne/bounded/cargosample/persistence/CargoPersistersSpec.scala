@@ -30,18 +30,32 @@ class CargoPersistersSpec extends WordSpecLike with Matchers with StaminaTestKit
   "The Cargo persister" should {
     val cargoId    = CargoId(java.util.UUID.fromString("D31E3C57-E63E-4AD5-A00B-E5FA9196E80D"))
     val trackingId = TrackingId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee573"))
-    val routeSpecification = RouteSpecification(
+    val routeSpecification = DeliverySpecification(
       Location("home"),
       Location("destination"),
       ZonedDateTime.parse("2018-03-03T10:15:30+01:00")
     )
 
     val cargoPlannedEvent = CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId, trackingId, routeSpecification)
-    val newRouteSpecified = NewRouteSpecified(CargoMetaData.fromCommand(metaData), cargoId, routeSpecification)
+    val loadedEvent = Loaded(
+      CargoMetaData.fromCommand(metaData),
+      cargoId,
+      Location("AMS"),
+      VesselVoyageId(UUID.fromString("7FB3CBB1-1282-4D7D-BE62-D990732EC1E9"))
+    )
+    val unloadedEvent = Unloaded(
+      CargoMetaData.fromCommand(metaData),
+      cargoId,
+      Location("AMS"),
+      VesselVoyageId(UUID.fromString("7FB3CBB1-1282-4D7D-BE62-D990732EC1E9"))
+    )
+    val newDeliverySpecified = NewDeliverySpecified(CargoMetaData.fromCommand(metaData), cargoId, routeSpecification)
 
     persisters.generateTestsFor(
       sample(cargoPlannedEvent),
-      sample(newRouteSpecified)
+      sample(loadedEvent),
+      sample(unloadedEvent),
+      sample(newDeliverySpecified)
     )
   }
 }

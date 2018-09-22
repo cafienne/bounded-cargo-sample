@@ -52,3 +52,20 @@ You can start the application by:
 ```bash
 $ sbt run
 ```
+
+## Cargo Sample of the [Blue Book](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215)
+
+### Modeling the Cargo Sample NOTES
+
+The Cargo sample is an extended example with a lot of detail, this sample is used to code the model is described and shown in this chapter.
+Sometimes there may be differences, these will be discussed over here.
+
+The CargoDomainProtocol contains the messages as case classes to deal with the domain. Bounded is modeled in an action driven way instead
+of a data driven way. Based on the actions, the intent, consequences are modeled as the event.
+
+Next to that, bounded creates an event sourced system and by storing events for Handling, this automatically creates a Delivery History
+that is not required as a separate Object and Storage model.
+
+With regards to the model, there is one named Customer that personally seems a bit odd as that is used to store all parties involved during
+shipping and handling of the cargo. We respect the described domain and will use the Customer anyway.
+

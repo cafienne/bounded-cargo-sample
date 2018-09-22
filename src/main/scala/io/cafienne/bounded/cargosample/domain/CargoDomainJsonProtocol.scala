@@ -23,6 +23,16 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
+  implicit object vesselVoyageIdFmt extends RootJsonFormat[VesselVoyageId] {
+    override def write(obj: VesselVoyageId): JsValue = JsString(obj.id.toString)
+
+    override def read(json: JsValue): VesselVoyageId = json match {
+      case JsString(v) => VesselVoyageId(UUID.fromString(v))
+      case _ =>
+        deserializationError(s"value $json cannot be deserialized to a VesselVoyageId")
+    }
+  }
+
   implicit object cargoIdFmt extends RootJsonFormat[CargoId] {
     override def write(obj: CargoId): JsValue = JsString(obj.id.toString)
 
@@ -65,8 +75,8 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val locationFmt           = jsonFormat1(Location)
-  implicit val routeSpecificationFmt = jsonFormat3(RouteSpecification)
+  implicit val locationFmt              = jsonFormat1(Location)
+  implicit val deliverySpecificationFmt = jsonFormat3(DeliverySpecification)
 
   implicit object CargoNotFoundFmt extends RootJsonFormat[CargoNotFound] {
     override def read(json: JsValue): CargoNotFound =
@@ -85,7 +95,7 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
       )
   }
 
-  implicit val planCargoFmt       = jsonFormat4(PlanCargo)
-  implicit val specifyNewRouteFmt = jsonFormat3(SpecifyNewRoute)
+  implicit val planCargoFmt          = jsonFormat4(PlanCargo)
+  implicit val specifyNewDeliveryFmt = jsonFormat3(SpecifyNewDelivery)
 
 }

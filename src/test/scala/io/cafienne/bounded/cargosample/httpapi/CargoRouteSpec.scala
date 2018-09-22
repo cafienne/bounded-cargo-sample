@@ -21,7 +21,7 @@ import org.scalatest._
 
 import scala.concurrent.Future
 
-class CargoRouteSpec extends FlatSpec with MustMatchers with ScalatestRouteTest {
+class CargoDeliverySpec extends FlatSpec with MustMatchers with ScalatestRouteTest {
 
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import QueriesJsonProtocol._
@@ -61,7 +61,7 @@ class CargoRouteSpec extends FlatSpec with MustMatchers with ScalatestRouteTest 
                   CargoMetaData.fromCommand(metadata),
                   cargoId1,
                   TrackingId(UUID.fromString("83AB1887-CC3D-434C-855C-34674E746BC0")),
-                  RouteSpecification(
+                  DeliverySpecification(
                     Location("Amsterdam"),
                     Location("New York"),
                     ZonedDateTime.parse("2018-01-01T13:40:00+01:00")
@@ -99,7 +99,11 @@ class CargoRouteSpec extends FlatSpec with MustMatchers with ScalatestRouteTest 
   it should "send a command to plan the cargo after a post" in {
     val planCargo = HttpJsonProtocol.PlanCargo(
       UUID.fromString("83AB1887-CC3D-434C-855C-34674E746BC0"),
-      RouteSpecification(Location("Amsterdam"), Location("New York"), ZonedDateTime.parse("2018-01-01T13:40:00+01:00"))
+      DeliverySpecification(
+        Location("Amsterdam"),
+        Location("New York"),
+        ZonedDateTime.parse("2018-01-01T13:40:00+01:00")
+      )
     )
     Post(s"/cargo", planCargo.toJson) ~> cargoRoute.routes ~> check {
       status must be(StatusCodes.Created)

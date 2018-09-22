@@ -33,11 +33,24 @@ class Cargo(
       case cmd: PlanCargo =>
         Ok(
           Seq(
-            CargoPlanned(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.trackingId, cmd.routeSpecification)
+            CargoPlanned(
+              CargoMetaData.fromCommand(cmd.metaData),
+              cmd.cargoId,
+              cmd.trackingId,
+              cmd.deliverySpecification
+            )
           )
         )
-      case cmd: SpecifyNewRoute =>
-        Ok(Seq(NewRouteSpecified(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.routeSpecification)))
+      case cmd: SpecifyNewDelivery =>
+        Ok(Seq(NewDeliverySpecified(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.deliverySpecification)))
+      case cmd: Loading =>
+        if (state.isDefined && state.get.currentCarrierMovement.isDefined) {
+          Ko(LoadingFailure(s"Cannot load a new Cargo as there is already a shipment loaded $state"))
+        } else {
+          Ok(Seq(Loaded(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
+        }
+      case cmd: Unloading =>
+        Ok(Seq(Unloaded(CargoMetaData.fromCommand(cmd.metaData), cmd.cargoId, cmd.location, cmd.vesselVoyageId)))
       case other => Ko(new UnexpectedCommand(other))
     }
   }
@@ -45,7 +58,7 @@ class Cargo(
   override def newState(evt: DomainEvent): Option[CargoAggregateState] = {
     evt match {
       case evt: CargoPlanned =>
-        Some(CargoAggregateState(evt.trackingId, evt.routeSpecification))
+        Some(CargoAggregateState(evt.trackingId, evt.deliverySpecification))
       case _ =>
         throw new IllegalArgumentException(s"Event $evt is not valid to create a new CargoAggregateState")
     }
@@ -55,15 +68,24 @@ class Cargo(
 
 object Cargo {
 
-  case class CargoAggregateState(trackingId: TrackingId, routeSpecification: RouteSpecification)
-      extends AggregateState[CargoAggregateState] {
+  case class CarrierMovement(versselVoyageId: VesselVoyageId)
+
+  case class CargoAggregateState(
+    trackingId: TrackingId,
+    deliverySpecification: DeliverySpecification,
+    currentCarrierMovement: Option[CarrierMovement] = None
+  ) extends AggregateState[CargoAggregateState] {
 
     override def update(evt: DomainEvent): Option[CargoAggregateState] = {
       evt match {
-        case CargoPlanned(_, _, newTrackingId, newRouteSpecification) =>
-          Some(CargoAggregateState(newTrackingId, newRouteSpecification))
-        case NewRouteSpecified(_, _, newRouteSpecification) =>
-          Some(this.copy(routeSpecification = newRouteSpecification))
+        case CargoPlanned(_, _, newTrackingId, newDeliverySpecification) =>
+          Some(CargoAggregateState(newTrackingId, newDeliverySpecification))
+        case NewDeliverySpecified(_, _, newDeliverySpecification) =>
+          Some(this.copy(deliverySpecification = newDeliverySpecification))
+        case Loaded(_, _, _, vesselVoyageId) =>
+          Some(this.copy(currentCarrierMovement = Some(CarrierMovement(vesselVoyageId))))
+        case Unloaded(_, _, _, _) =>
+          Some(this.copy(currentCarrierMovement = None))
         case _ => Some(this)
       }
     }

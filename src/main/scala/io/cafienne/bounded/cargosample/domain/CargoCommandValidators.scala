@@ -13,14 +13,14 @@ import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{
   CargoDomainCommand,
   CargoNotFound,
   PlanCargo,
-  SpecifyNewRoute
+  SpecifyNewDelivery
 }
 
 import scala.concurrent.Future
 
 trait CargoCommandValidators {
   implicit val PlanCargoValidator: ValidateableCommand[PlanCargo]
-  implicit val SpecifyNewRouteValidator: ValidateableCommand[SpecifyNewRoute]
+  implicit val SpecifyNewDeliveryValidator: ValidateableCommand[SpecifyNewDelivery]
 }
 
 trait ExistenceChecker extends ActorSystemProvider with ReadJournalProvider {
@@ -43,9 +43,8 @@ trait ExistenceChecker extends ActorSystemProvider with ReadJournalProvider {
 class CargoCommandValidatorsImpl(actorSystem: ActorSystem) extends CargoCommandValidators {
 
   implicit val PlanCargoValidator = new PlanCargoValidator()
-  implicit val SpecifyNewRouteValidator =
-    new CargoCommandValidator[SpecifyNewRoute](actorSystem)
-
+  implicit val SpecifyNewDeliveryValidator =
+    new CargoCommandValidator[SpecifyNewDelivery](actorSystem)
 }
 
 class PlanCargoValidator() extends ValidateableCommand[PlanCargo] {

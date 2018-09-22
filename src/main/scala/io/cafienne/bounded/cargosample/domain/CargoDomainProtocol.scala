@@ -9,6 +9,7 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
+import io.cafienne.bounded.{Id, UserContext, UserId}
 
 import scala.util.control.NoStackTrace
 
@@ -32,9 +33,17 @@ object CargoDomainProtocol {
     override val commandId: UUID = UUID.randomUUID()
   ) extends CommandMetaData
 
+  case class CustomerId(id: UUID) extends Id {
+    override def idAsString: String = id.toString
+  }
+
+  case class VesselVoyageId(id: UUID) extends Id {
+    override def idAsString: String = id.toString
+  }
+
   case class TrackingId(id: UUID)
   case class Location(name: String)
-  case class RouteSpecification(origin: Location, destination: Location, arrivalDeadline: ZonedDateTime)
+  case class DeliverySpecification(origin: Location, destination: Location, arrivalDeadline: ZonedDateTime)
 
   /**
     * All commands for the Cargo are extended via DomainCommand.
@@ -77,18 +86,46 @@ object CargoDomainProtocol {
     */
   trait CargoDomainEvent extends DomainEvent
 
+  trait HandlingEvent extends CargoDomainEvent
+
   // Commands
   case class PlanCargo(
     metaData: CargoCommandMetaData,
     cargoId: CargoId,
     trackingId: TrackingId,
-    routeSpecification: RouteSpecification
+    deliverySpecification: DeliverySpecification
   ) extends CargoDomainCommand {
     override def aggregateRootId: CargoId = cargoId
   }
 
-  case class SpecifyNewRoute(metaData: CargoCommandMetaData, cargoId: CargoId, routeSpecification: RouteSpecification)
-      extends CargoDomainCommand {
+  case class SpecifyNewDelivery(
+    metaData: CargoCommandMetaData,
+    cargoId: CargoId,
+    deliverySpecification: DeliverySpecification
+  ) extends CargoDomainCommand {
+    override def aggregateRootId: CargoId = cargoId
+  }
+
+  case class SpecifyNewRoute(
+    metaData: CargoCommandMetaData,
+    cargoId: CargoId,
+    deliverySpecification: DeliverySpecification
+  )
+  case class Loading(
+    metaData: CargoCommandMetaData,
+    cargoId: CargoId,
+    location: Location,
+    vesselVoyageId: VesselVoyageId
+  ) extends CargoDomainCommand {
+    override def aggregateRootId: CargoId = cargoId
+  }
+
+  case class Unloading(
+    metaData: CargoCommandMetaData,
+    cargoId: CargoId,
+    location: Location,
+    vesselVoyageId: VesselVoyageId
+  ) extends CargoDomainCommand {
     override def aggregateRootId: CargoId = cargoId
   }
 
@@ -97,18 +134,49 @@ object CargoDomainProtocol {
     metaData: CargoMetaData,
     cargoId: CargoId,
     trackingId: TrackingId,
-    routeSpecification: RouteSpecification
+    deliverySpecification: DeliverySpecification
   ) extends CargoDomainEvent {
     override def id: CargoId = cargoId
   }
 
-  case class NewRouteSpecified(metaData: CargoMetaData, CargoId: CargoId, routeSpecification: RouteSpecification)
-      extends CargoDomainEvent {
-    override def id: CargoId = CargoId
+  //case class NewRouteSpecified(metaData: CargoMetaData, CargoId: CargoId, routeSpecification: RouteSpecification)
+  case class NewDeliverySpecified(
+    metaData: CargoMetaData,
+    cargoId: CargoId,
+    deliverySpecification: DeliverySpecification
+  ) extends CargoDomainEvent {
+    override def id: CargoId = cargoId
   }
 
-  trait CargoDomainException extends NoStackTrace {
+  case class Loaded(metaData: CargoMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
+      extends HandlingEvent {
+    override def id: CargoId = cargoId
+  }
+
+  case class Unloaded(metaData: CargoMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
+      extends HandlingEvent {
+    override def id: CargoId = cargoId
+  }
+
+  trait CargoDomainException extends NoStackTrace with HandlingFailure {
     val msg: String
+  }
+
+  class LoadingFailure(override val msg: String) extends Exception(msg) with CargoDomainException {
+    def this(msg: String, cause: Throwable) {
+      this(msg)
+      initCause(cause)
+    }
+  }
+
+  object LoadingFailure {
+    def apply(msg: String): LoadingFailure =
+      new LoadingFailure(msg)
+    def apply(msg: String, cause: Throwable): LoadingFailure =
+      new LoadingFailure(msg, cause)
+
+    def unapply(e: LoadingFailure): Option[(String, Option[Throwable])] =
+      Some((e.getMessage, Option(e.getCause)))
   }
 
   class CargoNotFound(override val msg: String) extends Exception(msg) with CargoDomainException {

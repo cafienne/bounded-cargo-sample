@@ -37,7 +37,7 @@ lazy val root = (project in file("."))
   .settings(basicSettings: _*)
   .settings(publishArtifact := false,
     name := "Bounded Cargo Sample",
-    libraryDependencies ++= Dependencies.baseDeps ++ Dependencies.persistanceLmdbDBDeps ++ Dependencies.persistenceLevelDBDeps
+    libraryDependencies ++= Dependencies.dependencies
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(
