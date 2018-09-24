@@ -5,6 +5,7 @@
 package io.cafienne.bounded.cargosample
 
 import java.io.File
+import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
@@ -17,7 +18,7 @@ import io.cafienne.bounded.cargosample.eventmaterializers.{CargoLmdbClient, Carg
 import io.cafienne.bounded.cargosample.httpapi.HttpApiEndpoint
 import io.cafienne.bounded.config.Configured
 import io.cafienne.bounded.eventmaterializers._
-import io.cafienne.bounded.runtime.RuntimeInfoLoader
+import io.cafienne.bounded.RuntimeInfo
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
@@ -29,8 +30,8 @@ object Boot extends App with Configured {
   implicit val buildInfo = io.cafienne.bounded
     .BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
   //Ensure that this running process in uniquely identifiable.
-  val filename             = system.settings.config.getString("application.runtimeinfo.path")
-  implicit val runtimeInfo = RuntimeInfoLoader(new File(filename))
+
+  implicit val runtimeInfo = RuntimeInfo(UUID.randomUUID().toString)
 
   import system.dispatcher
 

@@ -11,18 +11,17 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
 import akka.event.{Logging, LoggingAdapter}
+import akka.http.scaladsl.model.ws.{Message, TextMessage}
 import akka.http.scaladsl.server.{PathMatchers, Route}
+import akka.stream.{ActorMaterializer, OverflowStrategy}
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.{CargoCommandValidatorsImpl, CargoDomainProtocol}
-import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{
-  CargoCommandMetaData,
-  CargoId,
-  CargoPlanned,
-  TrackingId
-}
+import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{CargoCommandMetaData, CargoId, CargoPlanned, TrackingId}
 import io.cafienne.bounded.cargosample.eventmaterializers.CargoQueries
 import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.CargoViewItem
 import io.swagger.annotations._
+import spray.json.{JsObject, JsString}
 
 import scala.util.{Failure, Success}
 
@@ -38,7 +37,7 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
 
   val logger: LoggingAdapter = Logging(actorSystem, getClass)
 
-  val routes: Route = { getCargo ~ planCargo }
+  val routes: Route = { getCargo ~ planCargo ~ websocketEventCargo}
 
   @Path("cargo/{cargoId}")
   @ApiOperation(
@@ -147,4 +146,15 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
         }
       }
     }
+
+  def websocketEventCargo =
+    path("websocketTest")
+  {
+    handleWebSocketMessages(websocketHandler)
+  }
+
+  def websocketHandler: Flow[Message, Message, Any] =
+    Flow[Message].flatMapConcat(_ =>
+    Source.single[JsObject](JsObject("event" -> JsString("Plan Cargo (stub)"))).map(x =>TextMessage(x.compactPrint)))
+
 }
