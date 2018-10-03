@@ -49,8 +49,7 @@ object Dependencies {
       "com.github.swagger-akka-http" %% "swagger-akka-http"          % "1.0.0",
       "org.iq80.leveldb"            % "leveldb"                      % "0.10",
       "org.fusesource.leveldbjni"   % "leveldbjni-all"               % "1.8",
-      "org.lmdbjava"                % "lmdbjava"                     % "0.6.1",
-      "ch.lightshed"                %% "courier"                     % "0.1.4"
+      "org.lmdbjava"                % "lmdbjava"                     % "0.6.1"
     )
 
 }
