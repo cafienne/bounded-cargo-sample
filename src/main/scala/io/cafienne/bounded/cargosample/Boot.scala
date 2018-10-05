@@ -18,7 +18,6 @@ import io.cafienne.bounded.cargosample.httpapi.HttpApiEndpoint
 import io.cafienne.bounded.config.Configured
 import io.cafienne.bounded.eventmaterializers._
 import io.cafienne.bounded.runtime.PerLocalInstanceRuntimeInfoLoader
-
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
