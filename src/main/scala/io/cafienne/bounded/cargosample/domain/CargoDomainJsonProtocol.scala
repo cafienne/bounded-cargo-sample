@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.domain
 
 import java.util.UUID
 
-import io.cafienne.bounded.UserContext
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
 import spray.json.{RootJsonFormat, _}
 
@@ -16,63 +15,69 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
   implicit object cargoUserIdFmt extends RootJsonFormat[CargoUserId] {
     override def write(obj: CargoUserId): JsValue = JsString(obj.id.toString)
 
-    override def read(json: JsValue): CargoUserId = json match {
-      case JsString(v) => CargoUserId(UUID.fromString(v))
-      case _ =>
-        deserializationError(s"value $json cannot be deserialized to a CargoUserId")
-    }
+    override def read(json: JsValue): CargoUserId =
+      json match {
+        case JsString(v) => CargoUserId(UUID.fromString(v))
+        case _ =>
+          deserializationError(s"value $json cannot be deserialized to a CargoUserId")
+      }
   }
 
   implicit object vesselVoyageIdFmt extends RootJsonFormat[VesselVoyageId] {
     override def write(obj: VesselVoyageId): JsValue = JsString(obj.id.toString)
 
-    override def read(json: JsValue): VesselVoyageId = json match {
-      case JsString(v) => VesselVoyageId(UUID.fromString(v))
-      case _ =>
-        deserializationError(s"value $json cannot be deserialized to a VesselVoyageId")
-    }
+    override def read(json: JsValue): VesselVoyageId =
+      json match {
+        case JsString(v) => VesselVoyageId(UUID.fromString(v))
+        case _ =>
+          deserializationError(s"value $json cannot be deserialized to a VesselVoyageId")
+      }
   }
 
   implicit object cargoIdFmt extends RootJsonFormat[CargoId] {
     override def write(obj: CargoId): JsValue = JsString(obj.id.toString)
 
-    override def read(json: JsValue): CargoId = json match {
-      case JsString(v) => CargoId(UUID.fromString(v))
-      case _ =>
-        deserializationError(s"value $json cannot be deserialized to a CargoId")
-    }
+    override def read(json: JsValue): CargoId =
+      json match {
+        case JsString(v) => CargoId(UUID.fromString(v))
+        case _ =>
+          deserializationError(s"value $json cannot be deserialized to a CargoId")
+      }
   }
 
   implicit object CargoUserContextJsonFormat extends RootJsonFormat[UserContext] {
-    override def write(obj: UserContext): JsValue = JsObject(
-      "userId" -> JsString(obj.userId.idAsString),
-      "roles"  -> JsArray(obj.roles.map(r => JsString(r)).toVector)
-    )
+    override def write(obj: UserContext): JsValue =
+      JsObject(
+        "userId" -> JsString(obj.userId.idAsString),
+        "roles"  -> JsArray(obj.roles.map(r => JsString(r)).toVector)
+      )
 
-    override def read(json: JsValue): UserContext = json match {
-      case JsObject(fields) if fields.contains("userId") =>
-        (fields("userId"), fields("roles")) match {
-          case (JsString(userStr), JsArray(rolesArr)) =>
-            val userId = CargoUserId(UUID.fromString(userStr))
-            val roles  = rolesArr.map(r => r.toString()).toList
-            CargoUserContext(userId, roles)
-          case _ =>
-            deserializationError(s"value $json does not conform the UserContext json object")
-        }
-    }
+    override def read(json: JsValue): UserContext =
+      json match {
+        case JsObject(fields) if fields.contains("userId") =>
+          (fields("userId"), fields("roles")) match {
+            case (JsString(userStr), JsArray(rolesArr)) =>
+              val userId = CargoUserId(UUID.fromString(userStr))
+              val roles  = rolesArr.map(r => r.toString()).toList
+              CargoUserContext(userId, roles)
+            case _ =>
+              deserializationError(s"value $json does not conform the UserContext json object")
+          }
+      }
   }
 
   implicit val CargoCommandMetaDataJsonFormat = jsonFormat3(CargoCommandMetaData)
-  implicit val MetaDataJsonFormat             = jsonFormat5(CargoMetaData.apply)
+  implicit val MetaDataJsonFormat             = jsonFormat3(CargoMetaData.apply)
 
   implicit object chargeSessionIdFmt extends RootJsonFormat[TrackingId] {
     override def write(obj: TrackingId): JsValue = JsString(obj.id.toString)
 
-    override def read(json: JsValue): TrackingId = json match {
-      case JsString(v) => TrackingId(UUID.fromString(v))
-      case _ =>
-        deserializationError(s"value $json cannot be deserialized to a TrackingId")
-    }
+    override def read(json: JsValue): TrackingId =
+      json match {
+        case JsString(v) => TrackingId(UUID.fromString(v))
+        case _ =>
+          deserializationError(s"value $json cannot be deserialized to a TrackingId")
+      }
   }
 
   implicit val locationFmt              = jsonFormat1(Location)

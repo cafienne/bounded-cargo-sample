@@ -1,19 +1,17 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.eventmaterializers
 
 import java.io.File
-import java.time.ZonedDateTime
+import java.time.{OffsetDateTime, ZonedDateTime}
 import java.util.UUID
-
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.persistence.query.Sequence
 import akka.testkit.TestKit
 import akka.util.Timeout
-import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
 import io.cafienne.bounded.eventmaterializers.OffsetStoreProvider
 import io.cafienne.bounded.cargosample.SpecConfig
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
@@ -21,23 +19,22 @@ import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.Ca
 import io.cafienne.bounded.test.TestableProjection
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.wordspec.AsyncWordSpec
 
 import scala.concurrent.duration._
 
-class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with BeforeAndAfterAll {
+class CargoQueriesSpec extends AsyncWordSpec with Matchers with ScalaFutures with BeforeAndAfterAll {
 
   //Setup required supporting classes
   implicit val timeout                = Timeout(10.seconds)
   implicit val system                 = ActorSystem("CargoTestSystem", SpecConfig.testConfigDVriendInMem)
   implicit val logger: LoggingAdapter = Logging(system, getClass)
   implicit val defaultPatience        = PatienceConfig(timeout = Span(4, Seconds), interval = Span(100, Millis))
-  implicit val buildInfo =
-    BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
-  implicit val runtimeInfo = RuntimeInfo(System.currentTimeMillis().toString)
 
   //Create test data
-  val expectedDeliveryTime = ZonedDateTime.parse("2018-01-01T17:43:00+01:00")
+  val expectedDeliveryTime = OffsetDateTime.parse("2018-01-01T17:43:00+01:00")
   val userId1              = CargoUserId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee572"))
   val userId2              = CargoUserId(UUID.fromString("42f53841-0bf3-467f-98e2-578d360ed46f"))
   private val userContext = Some(new UserContext {
@@ -73,7 +70,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
       }
 
       cargoQueries.getCargo(cargoId1) should be(
-        Some(CargoViewItem(cargoId1, "Amsterdam", "New York", expectedDeliveryTime))
+        Some(CargoViewItem(cargoId1.idAsString, "Amsterdam", "New York", expectedDeliveryTime))
       )
     }
     "add and retrieve an update on valid cargo based on new event after replay" in {
@@ -92,7 +89,7 @@ class CargoQueriesSpec extends WordSpec with Matchers with ScalaFutures with Bef
       )
       fixture.addEvent(evt2)
       cargoQueries.getCargo(cargoId1) should be(
-        Some(CargoViewItem(cargoId1, "Amsterdam", "Oslo", expectedDeliveryTime))
+        Some(CargoViewItem(cargoId1.idAsString, "Amsterdam", "Oslo", expectedDeliveryTime))
       )
     }
   }

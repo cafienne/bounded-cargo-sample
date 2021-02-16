@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.domain
 
 import akka.actor._
-import io.cafienne.bounded.{BuildInfo, RuntimeInfo}
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.Cargo.CargoAggregateState
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
@@ -18,15 +17,10 @@ import scala.collection.immutable.Seq
   */
 class Cargo(
   cargoId: AggregateRootId,
-  locationsProvider: LocationsProvider,
-  buildInfo: BuildInfo,
-  runtimeInfo: RuntimeInfo
+  locationsProvider: LocationsProvider
 ) extends AggregateRootActor[CargoAggregateState] {
 
-  implicit val bi = buildInfo
-  implicit val ri = runtimeInfo
-
-  override def aggregateId: AggregateRootId = cargoId
+  override def aggregateId: String = cargoId.idAsString
 
   override def handleCommand(command: DomainCommand, state: Option[CargoAggregateState]): Reply = {
     command match {
@@ -101,14 +95,12 @@ object Cargo {
   * @param system as a sample dependency the actor system is passed.
   * @param locations a dependency is used inside the Aggregate Root.
   */
-class CargoCreator(system: ActorSystem, locations: LocationsProvider)(
-  implicit buildInfo: BuildInfo,
-  runtimeInfo: RuntimeInfo
-) extends AggregateRootCreator {
+class CargoCreator(system: ActorSystem, locations: LocationsProvider) extends AggregateRootCreator {
 
-  override def props(cargoId: AggregateRootId): Props = {
-    system.log.debug("Returning new Props for {}", cargoId)
-    Props(classOf[Cargo], cargoId, locations, buildInfo, runtimeInfo)
-  }
+//  override def props(cargoId: AggregateRootId): Props = {
+//    system.log.debug("Returning new Props for {}", cargoId)
+//    Props(classOf[Cargo], cargoId, locations)
+//  }
 
+  override def props(idToCreate: String): Props = Props(classOf[Cargo], idToCreate, locations)
 }

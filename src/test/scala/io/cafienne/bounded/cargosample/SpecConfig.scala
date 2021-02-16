@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample
@@ -23,24 +23,13 @@ object SpecConfig {
       |        stdout-loglevel = "DEBUG"
       |        loggers = ["akka.testkit.TestEventListener"]
       |        actor {
-      |          default-dispatcher {
-      |            executor = "fork-join-executor"
-      |            fork-join-executor {
-      |              parallelism-min = 8
-      |              parallelism-factor = 2.0
-      |              parallelism-max = 8
-      |            }
-      |          }
-      |          serialize-creators = off
-      |          serialize-messages = off
-      |          serializers {
-      |            serializer = "io.cafienne.bounded.cargosample.persistence.CargoPersistersSerializer"
-      |          }
-      |          serialization-bindings {
-      |            "stamina.Persistable" = serializer
-      |            // enable below to check if all events have been serialized without java.io.Serializable
-      |            "java.io.Serializable" = none
-      |          }
+      |           serialize-creators = off
+      |           serialize-messages = off
+      |           serialization-bindings {
+      |             "io.cafienne.bounded.aggregate.DomainEvent" = jackson-json
+      |             // enable below to check if all taskEvents have been serialized without java.io.Serializable
+      |             "java.io.Serializable" = none
+      |           }
       |        }
       |      persistence {
       |       publish-confirmations = on
@@ -86,24 +75,13 @@ object SpecConfig {
       |        stdout-loglevel = "DEBUG"
       |        loggers = ["akka.testkit.TestEventListener"]
       |        actor {
-      |          default-dispatcher {
-      |            executor = "fork-join-executor"
-      |            fork-join-executor {
-      |              parallelism-min = 8
-      |              parallelism-factor = 2.0
-      |              parallelism-max = 8
-      |            }
-      |          }
-      |          serialize-creators = off
-      |          serialize-messages = off
-      |          serializers {
-      |            serializer = "io.cafienne.bounded.cargosample.persistence.CargoPersistersSerializer"
-      |          }
-      |          serialization-bindings {
-      |            "stamina.Persistable" = serializer
-      |            // enable below to check if all events have been serialized without java.io.Serializable
-      |            "java.io.Serializable" = none
-      |          }
+      |           serialize-creators = off
+      |           serialize-messages = off
+      |           serialization-bindings {
+      |             "io.cafienne.bounded.aggregate.DomainEvent" = jackson-json
+      |             // enable below to check if all taskEvents have been serialized without java.io.Serializable
+      |             "java.io.Serializable" = none
+      |           }
       |        }
       |      persistence {
       |       publish-confirmations = on

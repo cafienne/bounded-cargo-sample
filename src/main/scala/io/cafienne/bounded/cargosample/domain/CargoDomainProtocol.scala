@@ -1,19 +1,47 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.domain
 
 import io.cafienne.bounded.aggregate._
-import java.time.ZonedDateTime
-import java.util.UUID
 
-import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
-import io.cafienne.bounded.{Id, UserContext, UserId}
+import java.time.{OffsetDateTime, ZonedDateTime}
+import java.util.UUID
 
 import scala.util.control.NoStackTrace
 
 object CargoDomainProtocol {
+
+  trait Id {
+    def idAsString: String
+  }
+
+  trait UserId extends Id
+
+  trait AggregateRootId extends Id
+
+  trait UserContext {
+    def userId: UserId
+
+    def roles: List[String]
+  }
+
+  trait CommandMetaData {
+    def timestamp: OffsetDateTime
+
+    def userContext: Option[UserContext]
+
+    val commandId: UUID = UUID.randomUUID()
+  }
+
+  trait MetaData {
+    def timestamp: OffsetDateTime
+
+    def userContext: Option[UserContext]
+
+    def causedByCommand: Option[UUID]
+  }
 
   case class CargoUserId(id: UUID) extends UserId {
     override def idAsString: String = id.toString
@@ -28,7 +56,7 @@ object CargoDomainProtocol {
   case class CargoUserContext(userId: UserId, roles: List[String]) extends UserContext
 
   case class CargoCommandMetaData(
-    timestamp: ZonedDateTime,
+    timestamp: OffsetDateTime,
     val userContext: Option[UserContext],
     override val commandId: UUID = UUID.randomUUID()
   ) extends CommandMetaData
@@ -43,7 +71,7 @@ object CargoDomainProtocol {
 
   case class TrackingId(id: UUID)
   case class Location(name: String)
-  case class DeliverySpecification(origin: Location, destination: Location, arrivalDeadline: ZonedDateTime)
+  case class DeliverySpecification(origin: Location, destination: Location, arrivalDeadline: OffsetDateTime)
 
   /**
     * All commands for the Cargo are extended via DomainCommand.
@@ -52,29 +80,23 @@ object CargoDomainProtocol {
     * @see DomainCommand for details.
     */
   trait CargoDomainCommand extends DomainCommand {
-    override def aggregateRootId: CargoId
-
     val metaData: CargoCommandMetaData
   }
 
   case class CargoMetaData(
-    timestamp: ZonedDateTime,
+    timestamp: OffsetDateTime,
     userContext: Option[UserContext],
-    causedByCommand: Option[UUID],
-    buildInfo: BuildInfo,
-    runTimeInfo: RuntimeInfo
+    causedByCommand: Option[UUID]
   ) extends MetaData
 
   object CargoMetaData {
     def fromCommand(
       metadata: CargoCommandMetaData
-    )(implicit buildInfo: BuildInfo, runtimeInfo: RuntimeInfo): CargoMetaData = {
+    ): CargoMetaData = {
       CargoMetaData(
         metadata.timestamp,
         metadata.userContext,
-        Some(metadata.commandId),
-        buildInfo,
-        runtimeInfo
+        Some(metadata.commandId)
       )
     }
   }
@@ -82,7 +104,6 @@ object CargoDomainProtocol {
   /**
     * All events for the Cargo are extended via DomainEvent
     * This event expects id, tenant(id), user context and a timestamp as standard input next to the event specific payload.
-    *
     */
   trait CargoDomainEvent extends DomainEvent
 
@@ -95,7 +116,7 @@ object CargoDomainProtocol {
     trackingId: TrackingId,
     deliverySpecification: DeliverySpecification
   ) extends CargoDomainCommand {
-    override def aggregateRootId: CargoId = cargoId
+    override def aggregateRootId: String = cargoId.idAsString
   }
 
   case class SpecifyNewDelivery(
@@ -103,7 +124,7 @@ object CargoDomainProtocol {
     cargoId: CargoId,
     deliverySpecification: DeliverySpecification
   ) extends CargoDomainCommand {
-    override def aggregateRootId: CargoId = cargoId
+    override def aggregateRootId: String = cargoId.idAsString
   }
 
   case class SpecifyNewRoute(
@@ -117,7 +138,7 @@ object CargoDomainProtocol {
     location: Location,
     vesselVoyageId: VesselVoyageId
   ) extends CargoDomainCommand {
-    override def aggregateRootId: CargoId = cargoId
+    override def aggregateRootId: String = cargoId.idAsString
   }
 
   case class Unloading(
@@ -126,7 +147,7 @@ object CargoDomainProtocol {
     location: Location,
     vesselVoyageId: VesselVoyageId
   ) extends CargoDomainCommand {
-    override def aggregateRootId: CargoId = cargoId
+    override def aggregateRootId: String = cargoId.idAsString
   }
 
   // Events
@@ -136,7 +157,7 @@ object CargoDomainProtocol {
     trackingId: TrackingId,
     deliverySpecification: DeliverySpecification
   ) extends CargoDomainEvent {
-    override def id: CargoId = cargoId
+    override def id: String = cargoId.idAsString
   }
 
   //case class NewRouteSpecified(metaData: CargoMetaData, CargoId: CargoId, routeSpecification: RouteSpecification)
@@ -145,17 +166,17 @@ object CargoDomainProtocol {
     cargoId: CargoId,
     deliverySpecification: DeliverySpecification
   ) extends CargoDomainEvent {
-    override def id: CargoId = cargoId
+    override def id: String = cargoId.idAsString
   }
 
   case class Loaded(metaData: CargoMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
       extends HandlingEvent {
-    override def id: CargoId = cargoId
+    override def id: String = cargoId.idAsString
   }
 
   case class Unloaded(metaData: CargoMetaData, cargoId: CargoId, location: Location, vesselVoyageId: VesselVoyageId)
       extends HandlingEvent {
-    override def id: CargoId = cargoId
+    override def id: String = cargoId.idAsString
   }
 
   trait CargoDomainException extends NoStackTrace with HandlingFailure {

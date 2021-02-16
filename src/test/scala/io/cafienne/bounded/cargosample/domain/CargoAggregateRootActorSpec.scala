@@ -1,23 +1,22 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.domain
 
-import java.time.{ZoneOffset, ZonedDateTime}
+import java.time.{OffsetDateTime, ZoneOffset}
 import java.util.UUID
-
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
 import akka.util.Timeout
-import io.cafienne.bounded.{BuildInfo, RuntimeInfo, UserContext, UserId}
 import io.cafienne.bounded.cargosample.domain.Cargo.CargoAggregateState
 import io.cafienne.bounded.cargosample.domain.Cargo.CarrierMovement
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
 import io.cafienne.bounded.cargosample.SpecConfig
 import io.cafienne.bounded.test.TestableAggregateRoot
-import io.cafienne.bounded.test.TestableAggregateRoot.CommandHandlingException
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 import scala.concurrent.duration._
 
@@ -25,9 +24,6 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
 
   implicit val timeout = Timeout(60.seconds) //dilated
   implicit val system  = ActorSystem("CargoTestSystem", SpecConfig.testConfigDVriendInMem)
-  implicit val buildInfo =
-    BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
-  implicit val runtimeInfo = RuntimeInfo("spec")
 
   //Creation of Aggregate Roots that make use of dependencies is organized via the Creator
   //as a separate class that contains the required dependencies.
@@ -39,7 +35,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
 
     override def userId: UserId = userId1
   })
-  val metaData = CargoCommandMetaData(ZonedDateTime.now(ZoneOffset.UTC), userContext)
+  val metaData = CargoCommandMetaData(OffsetDateTime.now(ZoneOffset.UTC), userContext)
 
   "CargoAggregateRoot" must {
 
@@ -49,11 +45,11 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       val routeSpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
-        ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
+        OffsetDateTime.parse("2018-03-03T10:15:30+01:00")
       )
 
       val ar = TestableAggregateRoot
-        .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId2)
+        .given(cargoAggregateRootCreator, cargoId2.idAsString)
         .when(PlanCargo(metaData, cargoId2, trackingId, routeSpecification))
 
       ar.events should contain(
@@ -71,7 +67,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       val routeSpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
-        ZonedDateTime.parse("2018-03-03T10:15:30+01:00[Europe/Amsterdam]")
+        OffsetDateTime.parse("2018-03-03T10:15:30+01:00")
       )
       val cargoPlannedEvent =
         CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, routeSpecification)
@@ -79,12 +75,12 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       val newDeliverySpecification = DeliverySpecification(
         Location("home"),
         Location("newDestination"),
-        ZonedDateTime.parse("2018-03-04T10:45:45+01:00[Europe/Amsterdam]")
+        OffsetDateTime.parse("2018-03-04T10:45:45+01:00")
       )
       val specifyNewDeliveryCommand = SpecifyNewDelivery(metaData, cargoId3, newDeliverySpecification)
 
       val ar = TestableAggregateRoot
-        .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent)
+        .given(cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent)
         .when(specifyNewDeliveryCommand)
 
       // You see that this only shows the events that are 'published' via when
@@ -104,7 +100,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       val deliverySpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
-        ZonedDateTime.parse("2018-03-03T10:15:30+01:00")
+        OffsetDateTime.parse("2018-03-03T10:15:30+01:00")
       )
       val cargoPlannedEvent =
         CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
@@ -117,7 +113,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       )
 
       val ar = TestableAggregateRoot
-        .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent)
+        .given(cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent)
         .when(loadCargo)
 
       // You see that this only shows the events that are 'published' via when
@@ -136,7 +132,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       val deliverySpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
-        ZonedDateTime.parse("2018-03-03T10:15:30+01:00")
+        OffsetDateTime.parse("2018-03-03T10:15:30+01:00")
       )
       val cargoPlannedEvent =
         CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
@@ -155,10 +151,13 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
         VesselVoyageId(UUID.fromString("629167F9-2095-485F-B3E2-D38FDEB7A345"))
       )
 
-      an[CommandHandlingException] should be thrownBy {
-        TestableAggregateRoot
-          .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3, cargoPlannedEvent, cargoLoadedEvent)
-          .when(newLoad)
+      val ar = TestableAggregateRoot
+        .given(cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent, cargoLoadedEvent)
+        .when(newLoad)
+
+      ar.failure match {
+        case LoadingFailure(msg, ex) => msg.contains("already") should be(true)
+        case other                   => fail("Expecting a LoadingFailure")
       }
     }
   }

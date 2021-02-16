@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.httpapi
@@ -36,10 +36,11 @@ class HttpApiEndpoint(commandGateway: CommandGateway, cargoQueries: CargoQueries
 
   val logger = Logging(system, HttpApiEndpoint.getClass)
 
-  def log(e: Throwable)(handle: Route): Route = rc => {
-    logger.error(s"Request ${rc.request} could not be handled normally. Cause: ${e.getMessage}", e)
-    handle(rc)
-  }
+  def log(e: Throwable)(handle: Route): Route =
+    rc => {
+      logger.error(s"Request ${rc.request} could not be handled normally. Cause: ${e.getMessage}", e)
+      handle(rc)
+    }
 
   def defaultExceptionHandler(e: Throwable): Route =
     log(e) {

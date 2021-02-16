@@ -1,28 +1,24 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.persistence
 
-import java.time.ZonedDateTime
+import java.time.{OffsetDateTime, ZonedDateTime}
 import java.util.UUID
-
-import io.cafienne.bounded.{BuildInfo, RuntimeInfo}
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
 import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import stamina.Persisters
 import stamina.testkit._
 
-class CargoPersistersSpec extends WordSpecLike with Matchers with StaminaTestKit {
-
-  implicit val buildInfo =
-    BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
-  implicit val runtimeInfo = RuntimeInfo("fixed-for-test")
+class CargoPersistersSpec extends AnyWordSpec with Matchers with StaminaTestKit {
 
   val persisters = Persisters(CargoPersisters.persisters)
 
   val userId           = CargoUserId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee572"))
-  val timestamp        = ZonedDateTime.parse("2018-02-02T10:15:30+01:00")
+  val timestamp        = OffsetDateTime.parse("2018-02-02T10:15:30+01:00")
   val cargoUserContext = CargoUserContext(userId, List.empty)
   val metaData =
     CargoCommandMetaData(timestamp, Some(cargoUserContext), UUID.fromString("60f5b725-799e-423d-8e70-0a664b1e0963"))
@@ -33,7 +29,7 @@ class CargoPersistersSpec extends WordSpecLike with Matchers with StaminaTestKit
     val routeSpecification = DeliverySpecification(
       Location("home"),
       Location("destination"),
-      ZonedDateTime.parse("2018-03-03T10:15:30+01:00")
+      OffsetDateTime.parse("2018-03-03T10:15:30+01:00")
     )
 
     val cargoPlannedEvent = CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId, trackingId, routeSpecification)

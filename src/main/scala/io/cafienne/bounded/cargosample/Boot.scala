@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample
@@ -17,7 +17,6 @@ import io.cafienne.bounded.cargosample.eventmaterializers.{CargoLmdbClient, Carg
 import io.cafienne.bounded.cargosample.httpapi.HttpApiEndpoint
 import io.cafienne.bounded.config.Configured
 import io.cafienne.bounded.eventmaterializers._
-import io.cafienne.bounded.runtime.PerLocalInstanceRuntimeInfoLoader
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
 
@@ -25,11 +24,8 @@ object Boot extends App with Configured {
   implicit val system       = ActorSystem("cargo-service")
   implicit val materializer = ActorMaterializer()
   implicit val http         = Http()
-  implicit val buildInfo = io.cafienne.bounded
-    .BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
   //Ensure that this running process in uniquely identifiable.
-  val filename             = system.settings.config.getString("application.runtimeinfo.path")
-  implicit val runtimeInfo = PerLocalInstanceRuntimeInfoLoader(new File(filename))
+  val filename = system.settings.config.getString("application.runtimeinfo.path")
 
   import system.dispatcher
 
@@ -51,7 +47,6 @@ object Boot extends App with Configured {
   val lmdbPath        = config.getString("application.lmdb-path")
   val cargoLmdbClient = new CargoLmdbClient(new File(lmdbPath, "cargo"))
 
-  print(runtimeInfo)
   val cargoQueries              = new CargoQueriesImpl(cargoLmdbClient)
   val cargoViewProjectionWriter = new CargoViewWriter(system, cargoLmdbClient) with ReadJournalOffsetStore
 

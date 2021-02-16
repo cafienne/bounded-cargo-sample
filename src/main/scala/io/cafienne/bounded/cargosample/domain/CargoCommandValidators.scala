@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.domain
@@ -29,14 +29,13 @@ trait ExistenceChecker extends ActorSystemProvider with ReadJournalProvider {
 
   def exists[A <: CargoDomainCommand](cmd: A): Future[A] =
     readJournal
-      .currentEventsByPersistenceId(cmd.aggregateRootId.idAsString, 0, 1)
+      .currentEventsByPersistenceId(cmd.aggregateRootId, 0, 1)
       .runFold(false)((_, _) => true)
-      .flatMap(
-        f =>
-          if (f) Future.successful(cmd)
-          else
-            Future
-              .failed(CargoNotFound(s"Cargo with id ${cmd.aggregateRootId} not found while processing command $cmd"))
+      .flatMap(f =>
+        if (f) Future.successful(cmd)
+        else
+          Future
+            .failed(CargoNotFound(s"Cargo with id ${cmd.aggregateRootId} not found while processing command $cmd"))
       )
 }
 

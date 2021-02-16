@@ -1,12 +1,12 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.persistence
 
 import io.cafienne.bounded.aggregate._
 import com.typesafe.scalalogging.LazyLogging
-import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.CargoMetaData
+import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{AggregateRootId, CargoMetaData}
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 import stamina._
 
@@ -16,11 +16,11 @@ object UnsupportedEventProtocol extends DefaultJsonProtocol {
   case class UnsupportedEventAggregateId(id: String) extends AggregateRootId {
     override def idAsString: String = id
   }
-  case class UnsupportedEvent(metaData: CargoMetaData, id: UnsupportedEventAggregateId) extends DomainEvent
+  case class UnsupportedEvent(metaData: CargoMetaData, id: String) extends DomainEvent
 
-  implicit val unsupportedAggregateIdFmt: RootJsonFormat[UnsupportedEventAggregateId] = jsonFormat1(
-    UnsupportedEventAggregateId
-  )
+//  implicit val unsupportedAggregateIdFmt: RootJsonFormat[UnsupportedEventAggregateId] = jsonFormat1(
+//    UnsupportedEventAggregateId
+//  )
 
   implicit val unsupportedEventFmt: RootJsonFormat[UnsupportedEvent] =
     jsonFormat2(UnsupportedEvent)

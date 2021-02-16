@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.persistence
@@ -11,9 +11,10 @@ import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.CargoDomainEve
 class CargoTaggingEventAdapter extends WriteEventAdapter {
   override def manifest(event: Any): String = ""
 
-  override def toJournal(event: Any): Any = event match {
-    case prEvent: CargoDomainEvent =>
-      Tagged(prEvent, Set(Cargo.aggregateRootTag))
-    case other => other
-  }
+  override def toJournal(event: Any): Any =
+    event match {
+      case prEvent: CargoDomainEvent =>
+        Tagged(prEvent, Set(Cargo.aggregateRootTag))
+      case other => other
+    }
 }

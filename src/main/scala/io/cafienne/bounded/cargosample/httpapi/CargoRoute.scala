@@ -1,12 +1,17 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.httpapi
 
-import java.time.ZonedDateTime
+import java.time.{OffsetDateTime, ZonedDateTime}
+import javax.ws.rs.{Consumes, GET, POST, Path, Produces}
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.{ArraySchema, Content, Schema}
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 
-import javax.ws.rs.Path
+import javax.ws.rs.core.MediaType
 import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
@@ -22,12 +27,12 @@ import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol.{
 }
 import io.cafienne.bounded.cargosample.eventmaterializers.CargoQueries
 import io.cafienne.bounded.cargosample.eventmaterializers.QueriesJsonProtocol.CargoViewItem
-import io.swagger.annotations._
+import io.swagger.v3.oas.annotations.enums.ParameterStyle
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 
 import scala.util.{Failure, Success}
 
 @Path("/")
-@Api(value = "cargo", produces = "application/json", consumes = "application/json")
 class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(implicit actorSystem: ActorSystem)
     extends CargoCommandValidatorsImpl(actorSystem)
     with SprayJsonSupport {
@@ -40,79 +45,62 @@ class CargoRoute(commandGateway: CommandGateway, cargoQueries: CargoQueries)(imp
 
   val routes: Route = { getCargo ~ planCargo }
 
-  @Path("cargo/{cargoId}")
-  @ApiOperation(
-    value = "Fetch the data of a cargo",
-    nickname = "getcargo",
-    httpMethod = "GET",
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiImplicitParams(
-    Array(
-      new ApiImplicitParam(
-        name = "cargoId",
-        paramType = "path",
-        value = "Unique UUID of the cargo",
-        required = true,
-        dataType = "string",
-        example = "c2ea3e36-2ccd-4a20-9d4f-9495d2a170df"
-      ),
-    )
-  )
-  @ApiResponses(
-    Array(
+  @GET
+  @Produces(Array(MediaType.APPLICATION_JSON))
+  @Operation(
+    description = "Fetch the data of a cargo",
+    operationId = "getcargo",
+    parameters = Array(new Parameter(name = "cargoId", style = ParameterStyle.DEFAULT)),
+    responses = Array(
       new ApiResponse(
-        code = 200,
-        message = "data of a single cargo",
-        responseContainer = "List",
-        response = classOf[CargoViewItem]
+        responseCode = "200",
+        description = "data of a single cargo",
+        content =
+          Array(new Content(array = new ArraySchema(schema = new Schema(implementation = classOf[CargoViewItem]))))
       ),
-      new ApiResponse(code = 204, message = "No content"),
-      new ApiResponse(code = 500, message = "Internal server error", response = classOf[ErrorResponse])
+      new ApiResponse(responseCode = "204", description = "No content"),
+      new ApiResponse(responseCode = "500", description = "Internal server error")
     )
-  )
-  def getCargo =
+  ) //, content = classOf[ErrorResponse])  )
+  @Path("cargo/{cargoId}")
+  private def getCargo =
     get {
       path("cargo" / PathMatchers.JavaUUID) { id =>
         val cargoId = CargoId(id)
         cargoQueries.getCargo(cargoId) match {
-          case Some(cargoResponse) => complete(StatusCodes.OK       -> cargoResponse)
+          case Some(cargoResponse) => complete(StatusCodes.OK -> cargoResponse)
           case None                => complete(StatusCodes.NotFound -> ErrorResponse(s"Cargo with id $cargoId is not found"))
         }
       }
     }
 
+  @POST
+  @Produces(Array(MediaType.APPLICATION_JSON))
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  @Operation(
+    description = "Plan a new Cargo",
+    operationId = "plancargo",
+    requestBody =
+      new RequestBody(content = Array(new Content(schema = new Schema(implementation = classOf[PlanCargo])))),
+    responses = Array(
+      new ApiResponse(
+        responseCode = "201",
+        description = "data of a newly created cargo",
+        content = Array(new Content(schema = new Schema(implementation = classOf[CargoViewItem])))
+      ),
+      new ApiResponse(
+        responseCode = "203",
+        description = "Processing succeeded but API could not transform the response"
+      ),
+      new ApiResponse(responseCode = "500", description = "Internal server error")
+    )
+  ) //, content = classOf[ErrorResponse])  )
   @Path("cargo")
-  @ApiOperation(
-    value = "Plan a new cargo",
-    nickname = "plancargo",
-    httpMethod = "POST",
-    code = 201,
-    consumes = "application/json",
-    produces = "application/json"
-  )
-  @ApiImplicitParams(
-    Array(
-      new ApiImplicitParam(
-        required = true,
-        paramType = "body",
-        dataType = "io.cafienne.bounded.cargosample.httpapi.HttpJsonProtocol$PlanCargo"
-      )
-    )
-  )
-  @ApiResponses(
-    Array(
-      new ApiResponse(code = 201, message = "data of the newly planned cargo", response = classOf[CargoPlanned]),
-      new ApiResponse(code = 203, message = "Processing succeeded but API could not transform the response"),
-      new ApiResponse(code = 500, message = "Internal server error", response = classOf[ErrorResponse])
-    )
-  )
-  def planCargo =
+  private def planCargo =
     post {
       path("cargo") {
         entity(as[PlanCargo]) { planCargo =>
-          val metadata = CargoCommandMetaData(ZonedDateTime.now(), None)
+          val metadata = CargoCommandMetaData(OffsetDateTime.now(), None)
           onComplete(
             commandGateway.sendAndAsk(
               CargoDomainProtocol.PlanCargo(

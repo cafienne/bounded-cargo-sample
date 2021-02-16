@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.eventmaterializers
@@ -37,7 +37,7 @@ class CargoViewWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient)
       evt match {
         case event: CargoPlanned =>
           val cargoViewItem = CargoViewItem(
-            event.cargoId,
+            event.cargoId.idAsString,
             event.deliverySpecification.origin.name,
             event.deliverySpecification.destination.name,
             event.deliverySpecification.arrivalDeadline
@@ -51,7 +51,7 @@ class CargoViewWriter(actorSystem: ActorSystem, lmdbClient: LmdbClient)
             event.deliverySpecification.destination.name,
             event.deliverySpecification.arrivalDeadline
           )
-          lmdbClient.put(event.id.idAsString, cargoViewItem.toJson.compactPrint)
+          lmdbClient.put(event.id, cargoViewItem.toJson.compactPrint)
           Future.successful(Done)
         case _ =>
           Future.successful(Done)

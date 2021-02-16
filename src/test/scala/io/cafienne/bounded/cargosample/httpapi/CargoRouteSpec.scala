@@ -1,41 +1,38 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.httpapi
 
-import java.time.ZonedDateTime
+import java.time.{OffsetDateTime, ZonedDateTime}
 import java.util.UUID
-
 import akka.event.Logging
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import io.cafienne.bounded.{BuildInfo, RuntimeInfo}
 import io.cafienne.bounded.aggregate._
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol
 import io.cafienne.bounded.cargosample.domain.CargoDomainProtocol._
 import io.cafienne.bounded.cargosample.httpapi.HttpJsonProtocol.ErrorResponse
 import io.cafienne.bounded.cargosample.eventmaterializers.{CargoQueries, QueriesJsonProtocol}
-import org.scalatest._
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.must._
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.concurrent.Future
 
-class CargoDeliverySpec extends FlatSpec with MustMatchers with ScalatestRouteTest {
+class CargoDeliverySpec extends AnyWordSpec with Matchers with ScalaFutures with ScalatestRouteTest {
 
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import QueriesJsonProtocol._
   import spray.json._
 
-  val logger = Logging(system, getClass)
-  implicit val buildInfo =
-    BuildInfo(io.cafienne.bounded.cargosample.BuildInfo.name, io.cafienne.bounded.cargosample.BuildInfo.version)
-  implicit val runtimeInfo = RuntimeInfo(System.currentTimeMillis().toString)
-
+  val logger   = Logging(system, getClass)
   val cargoId1 = CargoId(UUID.fromString("8CD15DA4-006B-478C-8640-2FA52AA7657E"))
   val cargoViewItem1 =
-    CargoViewItem(cargoId1, "Amsterdam", "New York", ZonedDateTime.parse("2018-01-01T12:25:38+01:00"))
-  val metadata = CargoCommandMetaData(ZonedDateTime.now, None)
+    CargoViewItem(cargoId1.idAsString, "Amsterdam", "New York", OffsetDateTime.parse("2018-01-01T12:25:38+01:00"))
+  val metadata = CargoCommandMetaData(OffsetDateTime.now, None)
 
   val cargoQueries = new CargoQueries {
     override def getCargo(cargoId: CargoDomainProtocol.CargoId): Option[CargoViewItem] = {
@@ -64,7 +61,7 @@ class CargoDeliverySpec extends FlatSpec with MustMatchers with ScalatestRouteTe
                   DeliverySpecification(
                     Location("Amsterdam"),
                     Location("New York"),
-                    ZonedDateTime.parse("2018-01-01T13:40:00+01:00")
+                    OffsetDateTime.parse("2018-01-01T13:40:00+01:00")
                   )
                 )
               )
@@ -78,48 +75,51 @@ class CargoDeliverySpec extends FlatSpec with MustMatchers with ScalatestRouteTe
 
   val cargoRoute = new CargoRoute(commandGateway, cargoQueries)
 
-  "The Cargo route" should "fetch the data of a specific piece of cargo" in {
-    Get(s"/cargo/${cargoId1.id}") ~> Route.seal(cargoRoute.routes) ~> check {
-      status must be(StatusCodes.OK)
-      val theResponse = responseAs[CargoViewItem]
-      theResponse must be(cargoViewItem1)
-    }
-  }
+  "The Cargo route" should {
 
-  it should "respond with a not found when the cargo does not exist" in {
-    val notExistingCargoId    = CargoId(UUID.fromString("92E597FA-9099-408A-A1D4-5AF7F1A6E761"))
-    val expectedErrorResponse = ErrorResponse("Cargo with id 92e597fa-9099-408a-a1d4-5af7f1a6e761 is not found")
-    Get(s"/cargo/${notExistingCargoId.id}") ~> Route.seal(cargoRoute.routes) ~> check {
-      status must be(StatusCodes.NotFound)
-      val theResponse = responseAs[ErrorResponse]
-      theResponse must be(expectedErrorResponse)
+    "fetch the data of a specific piece of cargo" in {
+      Get(s"/cargo/${cargoId1.id}") ~> Route.seal(cargoRoute.routes) ~> check {
+        status must be(StatusCodes.OK)
+        val theResponse = responseAs[CargoViewItem]
+        theResponse must be(cargoViewItem1)
+      }
     }
-  }
 
-  it should "send a command to plan the cargo after a post" in {
-    val planCargo = HttpJsonProtocol.PlanCargo(
-      UUID.fromString("83AB1887-CC3D-434C-855C-34674E746BC0"),
-      DeliverySpecification(
-        Location("Amsterdam"),
-        Location("New York"),
-        ZonedDateTime.parse("2018-01-01T13:40:00+01:00")
+    "respond with a not found when the cargo does not exist" in {
+      val notExistingCargoId    = CargoId(UUID.fromString("92E597FA-9099-408A-A1D4-5AF7F1A6E761"))
+      val expectedErrorResponse = ErrorResponse("Cargo with id 92e597fa-9099-408a-a1d4-5af7f1a6e761 is not found")
+      Get(s"/cargo/${notExistingCargoId.id}") ~> Route.seal(cargoRoute.routes) ~> check {
+        status must be(StatusCodes.NotFound)
+        val theResponse = responseAs[ErrorResponse]
+        theResponse must be(expectedErrorResponse)
+      }
+    }
+
+    "send a command to plan the cargo after a post" in {
+      val planCargo = HttpJsonProtocol.PlanCargo(
+        UUID.fromString("83AB1887-CC3D-434C-855C-34674E746BC0"),
+        DeliverySpecification(
+          Location("Amsterdam"),
+          Location("New York"),
+          OffsetDateTime.parse("2018-01-01T13:40:00+01:00")
+        )
       )
-    )
-    Post(s"/cargo", planCargo.toJson) ~> cargoRoute.routes ~> check {
-      status must be(StatusCodes.Created)
-      val theResponse = responseAs[JsObject]
-      theResponse.fields.get("cargoId") must be(Some(JsString("8cd15da4-006b-478c-8640-2fa52aa7657e")))
+      Post(s"/cargo", planCargo.toJson) ~> cargoRoute.routes ~> check {
+        status must be(StatusCodes.Created)
+        val theResponse = responseAs[JsObject]
+        theResponse.fields.get("cargoId") must be(Some(JsString("8cd15da4-006b-478c-8640-2fa52aa7657e")))
+      }
     }
-  }
 
-  it should "give a clear error when the command is unknown" in {
-    case class MyHttpCommand(msg: String)
-    implicit val MyHttpCommandFmt = jsonFormat1(MyHttpCommand)
+    "give a clear error when the command is unknown" in {
+      case class MyHttpCommand(msg: String)
+      implicit val MyHttpCommandFmt = jsonFormat1(MyHttpCommand)
 
-    Post(s"/cargo", MyHttpCommand("will not work").toJson) ~> Route.seal(cargoRoute.routes) ~> check {
-      status must be(StatusCodes.BadRequest)
-      val theResponse = responseAs[String]
-      theResponse must be("The request content was malformed:\nObject is missing required member 'trackingId'")
+      Post(s"/cargo", MyHttpCommand("will not work").toJson) ~> Route.seal(cargoRoute.routes) ~> check {
+        status must be(StatusCodes.BadRequest)
+        val theResponse = responseAs[String]
+        theResponse must be("The request content was malformed:\nObject is missing required member 'trackingId'")
+      }
     }
   }
 

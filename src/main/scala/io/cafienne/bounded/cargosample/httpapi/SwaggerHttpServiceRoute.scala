@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
  */
 
 package io.cafienne.bounded.cargosample.httpapi
@@ -24,13 +24,14 @@ class SwaggerHttpServiceRoute(val system: ActorSystem, val mat: ActorMaterialize
       |
       """.stripMargin, version = "1.0.0")
 
-  def swaggerUIRoute = get {
-    routes ~
-      pathPrefix("") {
-        pathEndOrSingleSlash {
-          getFromResource("swagger-ui/index.html")
-        }
-      } ~ getFromResourceDirectory("swagger-ui")
-  }
+  def swaggerUIRoute =
+    get {
+      routes ~
+        pathPrefix("") {
+          pathEndOrSingleSlash {
+            getFromResource("swagger-ui/index.html")
+          }
+        } ~ getFromResourceDirectory("swagger-ui")
+    }
 
 }
