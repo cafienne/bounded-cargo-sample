@@ -55,7 +55,6 @@ libraryDependencies ++= Seq(
   "ch.megard"                %% "akka-http-cors"        % "1.1.1",
   "com.lightbend.akka"       %% "akka-persistence-jdbc" % "5.0.0",
   "io.spray"                 %% "spray-json"            % "1.3.6",
-  "com.scalapenos"              %% "stamina-json"       % "0.1.6",
   "net.virtual-void"         %% "json-lenses"           % "0.6.2",
   "org.iq80.leveldb"          % "leveldb"               % "0.12",
   "org.fusesource.leveldbjni" % "leveldbjni-all"        % "1.8",
@@ -86,11 +85,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka"   %% "akka-stream-testkit"       % akkaVersion     % Test,
   "com.typesafe.akka"   %% "akka-http-testkit"         % akkaHttpVersion % Test,
   "com.typesafe.akka"   %% "akka-persistence-testkit"  % akkaVersion     % Test,
-  //  "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.5.15.2"      % Test,
   "org.scalatest"       %% "scalatest"                 % "3.2.3"         % Test,
-  "net.virtual-void"    %% "json-lenses"               % "0.6.2"         % Test,
-  "com.scalapenos"              %% "stamina-testkit"             % "0.1.6" % Test
-//  "org.scalamock"               %% "scalamock-scalatest-support" % "3.6.0" % Test
+  "net.virtual-void"    %% "json-lenses"               % "0.6.2"         % Test
 )
 
 //dependencyOverrides ++= Seq(

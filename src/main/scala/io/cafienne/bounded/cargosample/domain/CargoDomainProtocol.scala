@@ -30,7 +30,7 @@ object CargoDomainProtocol {
   trait CommandMetaData {
     def timestamp: OffsetDateTime
 
-    def userContext: Option[UserContext]
+    def userContext: Option[CargoUserContext]
 
     val commandId: UUID = UUID.randomUUID()
   }
@@ -38,7 +38,7 @@ object CargoDomainProtocol {
   trait MetaData {
     def timestamp: OffsetDateTime
 
-    def userContext: Option[UserContext]
+    def userContext: Option[CargoUserContext]
 
     def causedByCommand: Option[UUID]
   }
@@ -53,11 +53,11 @@ object CargoDomainProtocol {
     override def toString: String = id.toString
   }
 
-  case class CargoUserContext(userId: UserId, roles: List[String]) extends UserContext
+  case class CargoUserContext(userId: CargoUserId, roles: List[String]) extends UserContext
 
   case class CargoCommandMetaData(
     timestamp: OffsetDateTime,
-    val userContext: Option[UserContext],
+    val userContext: Option[CargoUserContext],
     override val commandId: UUID = UUID.randomUUID()
   ) extends CommandMetaData
 
@@ -85,7 +85,7 @@ object CargoDomainProtocol {
 
   case class CargoMetaData(
     timestamp: OffsetDateTime,
-    userContext: Option[UserContext],
+    userContext: Option[CargoUserContext],
     causedByCommand: Option[UUID]
   ) extends MetaData
 

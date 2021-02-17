@@ -29,13 +29,9 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
   //as a separate class that contains the required dependencies.
   val cargoAggregateRootCreator = new CargoCreator(system, new FixedLocationsProvider())
 
-  val userId1 = CargoUserId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee572"))
-  val userContext = Some(new UserContext {
-    override def roles: List[String] = List.empty
-
-    override def userId: UserId = userId1
-  })
-  val metaData = CargoCommandMetaData(OffsetDateTime.now(ZoneOffset.UTC), userContext)
+  val userId1     = CargoUserId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee572"))
+  val userContext = Some(new CargoUserContext(userId1, List.empty))
+  val metaData    = CargoCommandMetaData(OffsetDateTime.now(ZoneOffset.UTC), userContext)
 
   "CargoAggregateRoot" must {
 
@@ -49,7 +45,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       )
 
       val ar = TestableAggregateRoot
-        .given(cargoAggregateRootCreator, cargoId2.idAsString)
+        .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId2.idAsString)
         .when(PlanCargo(metaData, cargoId2, trackingId, routeSpecification))
 
       ar.events should contain(
@@ -80,7 +76,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       val specifyNewDeliveryCommand = SpecifyNewDelivery(metaData, cargoId3, newDeliverySpecification)
 
       val ar = TestableAggregateRoot
-        .given(cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent)
+        .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent)
         .when(specifyNewDeliveryCommand)
 
       // You see that this only shows the events that are 'published' via when
@@ -100,7 +96,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       val deliverySpecification = DeliverySpecification(
         Location("home"),
         Location("destination"),
-        OffsetDateTime.parse("2018-03-03T10:15:30+01:00")
+        OffsetDateTime.parse("2018-03-03T10:15:30Z")
       )
       val cargoPlannedEvent =
         CargoPlanned(CargoMetaData.fromCommand(metaData), cargoId3, trackingId, deliverySpecification)
@@ -113,7 +109,7 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       )
 
       val ar = TestableAggregateRoot
-        .given(cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent)
+        .given[Cargo, CargoAggregateState](cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent)
         .when(loadCargo)
 
       // You see that this only shows the events that are 'published' via when
@@ -152,7 +148,12 @@ class CargoAggregateRootActorSpec extends AsyncWordSpec with Matchers with Befor
       )
 
       val ar = TestableAggregateRoot
-        .given(cargoAggregateRootCreator, cargoId3.idAsString, cargoPlannedEvent, cargoLoadedEvent)
+        .given[Cargo, CargoAggregateState](
+          cargoAggregateRootCreator,
+          cargoId3.idAsString,
+          cargoPlannedEvent,
+          cargoLoadedEvent
+        )
         .when(newLoad)
 
       ar.failure match {

@@ -34,15 +34,10 @@ class CargoQueriesSpec extends AsyncWordSpec with Matchers with ScalaFutures wit
   implicit val defaultPatience        = PatienceConfig(timeout = Span(4, Seconds), interval = Span(100, Millis))
 
   //Create test data
-  val expectedDeliveryTime = OffsetDateTime.parse("2018-01-01T17:43:00+01:00")
+  val expectedDeliveryTime = OffsetDateTime.parse("2018-01-01T17:43:00Z")
   val userId1              = CargoUserId(UUID.fromString("53f53841-0bf3-467f-98e2-578d360ee572"))
   val userId2              = CargoUserId(UUID.fromString("42f53841-0bf3-467f-98e2-578d360ed46f"))
-  private val userContext = Some(new UserContext {
-
-    override def roles: List[String] = List.empty
-
-    override def userId: UserId = userId1
-  })
+  private val userContext  = Some(CargoUserContext(userId1, List.empty))
 
   val metaData  = CargoCommandMetaData(expectedDeliveryTime, None)
   val metaData2 = CargoCommandMetaData(expectedDeliveryTime, userContext)
