@@ -87,26 +87,6 @@ object CargoDomainJsonProtocol extends DefaultJsonProtocol {
       }
   }
 
-//  implicit object CargoUserContextJsonFormat extends RootJsonFormat[UserContext] {
-//    override def write(obj: UserContext): JsValue =
-//      JsObject(
-//        "userId" -> JsString(obj.userId.idAsString),
-//        "roles"  -> JsArray(obj.roles.map(r => JsString(r)).toVector)
-//      )
-//
-//    override def read(json: JsValue): UserContext =
-//      json match {
-//        case JsObject(fields) if fields.contains("userId") =>
-//          (fields("userId"), fields("roles")) match {
-//            case (JsString(userStr), JsArray(rolesArr)) =>
-//              val userId = CargoUserId(UUID.fromString(userStr))
-//              val roles  = rolesArr.map(r => r.toString()).toList
-//              CargoUserContext(userId, roles)
-//            case _ =>
-//              deserializationError(s"value $json does not conform the UserContext json object")
-//          }
-//      }
-//  }
   implicit val CargoUserContextFmt            = jsonFormat2(CargoUserContext)
   implicit val CargoCommandMetaDataJsonFormat = jsonFormat3(CargoCommandMetaData)
   implicit val MetaDataJsonFormat             = jsonFormat3(CargoMetaData.apply)

@@ -97,10 +97,5 @@ object Cargo {
   */
 class CargoCreator(system: ActorSystem, locations: LocationsProvider) extends AggregateRootCreator {
 
-//  override def props(cargoId: AggregateRootId): Props = {
-//    system.log.debug("Returning new Props for {}", cargoId)
-//    Props(classOf[Cargo], cargoId, locations)
-//  }
-
   override def props(idToCreate: String): Props = Props(classOf[Cargo], idToCreate, locations)
 }

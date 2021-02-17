@@ -30,7 +30,7 @@ headerLicense := {
 val akkaVersion      = "2.6.12"
 val akkaHttpVersion  = "10.2.3"
 val graalAkkaVersion = "0.5.0"
-val boundedVersion   = "0.2.6-SNAPSHOT"
+val boundedVersion   = "0.3.0"
 val slickVersion     = "3.3.3"
 val swaggerVersion   = "2.1.6"
 
@@ -88,11 +88,6 @@ libraryDependencies ++= Seq(
   "org.scalatest"       %% "scalatest"                 % "3.2.3"         % Test,
   "net.virtual-void"    %% "json-lenses"               % "0.6.2"         % Test
 )
-
-//dependencyOverrides ++= Seq(
-//  "com.fasterxml.jackson.core" % "jackson-databind"           % "2.10.5.1",
-//  "com.fasterxml.jackson.core" % "jackson-annotations"        % "2.10.5"
-//)
 
 enablePlugins(GraalVMNativeImagePlugin)
 enablePlugins(JavaAppPackaging, AshScriptPlugin)
