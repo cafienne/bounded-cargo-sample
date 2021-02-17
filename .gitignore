@@ -81,5 +81,7 @@ local.properties
 hs_err_pid*
 
 .idea
-
+.bsp
+.metals
+metals.sbt
 target/

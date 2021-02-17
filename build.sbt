@@ -22,7 +22,7 @@ headerLicense := {
   val toYear = java.time.Year.now
   Some(
     HeaderLicense.Custom(
-      s"Copyright (C) 2018-$toYear  Creative Commons CC0 1.0 Universal"
+      s"Copyright (C) 2018-$toYear  Cafienne B.V."
     )
   )
 }

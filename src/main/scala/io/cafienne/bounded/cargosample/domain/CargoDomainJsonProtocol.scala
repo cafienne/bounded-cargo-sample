@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021  Creative Commons CC0 1.0 Universal
+ * Copyright (C) 2018-2021  Cafienne B.V.
  */
 
 package io.cafienne.bounded.cargosample.domain
