@@ -9,7 +9,6 @@ import spray.json._
 
 object QueriesJsonProtocol extends DefaultJsonProtocol {
   import io.cafienne.bounded.cargosample.domain.CargoDomainJsonProtocol._
-  import io.cafienne.bounded.aggregate.ProtocolJsonProtocol._
   case class CargoViewItem(
     id: String,
     origin: String,
